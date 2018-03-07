@@ -1,0 +1,7 @@
+.DS_Store
+.idea/
+*.pyc
+lattice_synthesis.pyc
+*.gv
+*.ps
+venv/
