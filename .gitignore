@@ -5,3 +5,4 @@ lattice_synthesis.pyc
 *.gv
 *.ps
 venv/
+test.py
