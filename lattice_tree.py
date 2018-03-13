@@ -57,7 +57,7 @@ class Node:
 
     def search_configuration(self, config):
         exists = False
-        tmp_config = copy.deepcopy(config)
+        tmp_config = copy.copy(config)
         if len(config) > 0:
             search = tmp_config.pop(0)
             for c in self.children:
@@ -71,7 +71,7 @@ class Node:
         return exists
 
     def search_subconfiguration(self, config, exists):
-        tmp_config = copy.deepcopy(config)
+        tmp_config = copy.copy(config)
         if len(config) > 0:
             search = tmp_config.pop(0)
             for c in self.children:
@@ -174,6 +174,10 @@ class Tree:
         root = self.root()
         return root.search_configuration(config)
 
+    def exists_config(self, lattice, config):
+        root = lattice.root()
+        return root.search_configuration(config)
+
     def add_config(self, config):
         root = self.root()
         return root.add_configuration(config)
@@ -211,61 +215,7 @@ class Tree:
                     i += 1
                 else:
                     search = False
-                # else:
-                #     new_configuration = None
-                    # break
-            # return new_configuration
-
-        # print new_configuration
         return new_configuration
-            # d_idx = 0
-            # non_valid_conf = [-1] * len(delta)
-            # for d in xrange(0, len(delta)):
-            #     # With a random choice I can decide to sum or subtruct the deltas
-            #     random = randint(0, 1)
-            #     # If 0 then sum
-            #     if random == 0:
-            #         new_val = config[d_idx] + delta[d]
-            #         new_val = self._find_nearest(lattice.discretized_descriptor[d], new_val)
-            #
-            #         # if not self._check_valid_value(new_val):
-            #         #     new_val = config[d_idx] - delta[d]
-            #         #     if not self._check_valid_value(new_val):
-            #         #         new_conf = [-1]*len(delta)
-            #         #         break
-            #         new_conf.append(new_val)
-            #
-            #         # if new_val > 1:
-            #         #     new_val = config[d_idx] - d
-            #         #     if new_val < 0:
-            #         #         break
-            #         # new_conf.append(new_val)
-            #     # If 1 then sub
-            #     else:
-            #         new_val = config[d_idx] - delta[d]
-            #         new_val = self._find_nearest(lattice.discretized_descriptor[d], new_val)
-            #         # if not self._check_valid_value(new_val):
-            #         #     new_val = config[d_idx] + delta[d]
-            #         #     if not self._check_valid_value(new_val):
-            #         #         new_conf = non_valid_conf
-            #         #         break
-            #
-            #         new_conf.append(new_val)
-            #
-            #     d_idx += 1
-
-            # if any(n == -1 for n in new_conf):
-            #     print new_conf
-            #
-            # if any(n < 0 for n in new_conf):
-            #     print new_conf
-            # if not (new_conf is non_valid_conf):
-            #     if not self.exists_config(new_conf):
-            #         break
-            # i += 1
-
-        # print new_configuration
-        # return new_configuration
 
     def closest_neighbour2(self, config, lattice, max_r):
         # new_configuration = None
@@ -314,34 +264,7 @@ class Tree:
         print "Exiting with none. All configuration discovered"
         return None, max_r
 
-        #     if len(new_conf) == 0:
-        #         new_configuration = None
-        #         i += 1
-        #     else:
-        #         r = numpy.random.randint(0, len(new_conf))
-        #         new_configuration = new_conf[r]
-        #         go_to_next_d = False
-        #         while self.exists_config(new_configuration):
-        #             new_conf.pop(r)
-        #             if len(new_conf) == 0:
-        #                 # i += 1
-        #                 go_to_next_d = True
-        #                 break
-        #             r = numpy.random.randint(0, len(new_conf))
-        #             new_configuration = new_conf[r]
-        #         if go_to_next_d:
-        #             i += 1
-        #         else:
-        #             search = False
-        #         # else:
-        #         #     new_configuration = None
-        #             # break
-        #     # return new_configuration
-        #
-        # print new_configuration
-        # return new_configuration
-
-    def print_tree(self):
+    def print_tree(self, name):
         tree_script_dot = "digraph lattice {\n"
         indent = 1
         tree_script_dot += '\t'*indent + 'node [fontname="Courier"];\n'
@@ -354,7 +277,7 @@ class Tree:
             tree_script_dot += self.print_subtree(f, child_name, indent)
 
         tree_script_dot += "}\n"
-        output_file = open("tree.gv", "w")
+        output_file = open(name+".gv", "w")
         output_file.write(tree_script_dot)
         output_file.close()
         # os.system("dot -Tpng -Gsize=9,15\! -Gdpi=100 -o tree.png tree.gv")
@@ -438,3 +361,5 @@ class Tree:
             return tmp2
         else:
             return tmp
+
+

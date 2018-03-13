@@ -2,6 +2,7 @@ import lattice_tree
 import math
 import itertools
 import numpy
+import copy
 
 
 class Lattice:
