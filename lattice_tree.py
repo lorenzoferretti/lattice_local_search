@@ -1,27 +1,43 @@
+########################################################################################################################
+# Author: Lorenzo Ferretti
+# Year: 2018
+#
+# This files contains the classes Node and Tree and the functions relevant for the classes.
+########################################################################################################################
+
 import copy
-from random import randint
 import os
 import numpy
 
 
-# A tree node
 class Node:
 
-    # Constructor to create a new node
     def __init__(self, data):
+        """
+        A node is characterized by the data it contains and the list of children
+        """
         self.data = data
         self.children = []
 
-    def add_child(self, data):
-        self.children.append(data)
+    def add_child(self, node):
+        """
+        Add a child to the list of children
+        """
+        self.children.append(node)
 
     def has_children(self):
+        """
+        Checks if a node has children
+        """
         if len(self.children) == 0:
             return False
         else:
             return True
 
     def has_child(self, data):
+        """
+        Checks if a node has a specific child
+        """
         for c in self.children:
             if data == c.get_data():
                 return True
@@ -31,14 +47,23 @@ class Node:
         return False
 
     def get_child(self, data):
+        """
+        Check if the list of children contains a specific value and returns the corresponding node
+        """
         for c in self.children:
             if data == c.get_data():
                 return c
 
     def get_data(self):
+        """
+        Returns the data contained in a node
+        """
         return self.data
 
     def get_depth(self):
+        """
+        Starting from a node, it returns the total number child generation it has.
+        """
         counter = 0
         if not self.has_children():
             return counter
@@ -48,6 +73,9 @@ class Node:
         return counter
 
     def go_in_depth(self, counter):
+        """
+        Starting from a node, it returns the total number child generation it has.
+        """
         if not self.has_children():
             return counter + 1
         else:
@@ -56,6 +84,9 @@ class Node:
         return counter + 1
 
     def search_configuration(self, config):
+        """
+        Starting from the calling node searches if the config configuration exists among all its possible children
+        """
         exists = False
         tmp_config = copy.copy(config)
         if len(config) > 0:
@@ -71,6 +102,9 @@ class Node:
         return exists
 
     def search_subconfiguration(self, config, exists):
+        """
+        Same as before.
+        """
         tmp_config = copy.copy(config)
         if len(config) > 0:
             search = tmp_config.pop(0)
@@ -85,25 +119,24 @@ class Node:
             return True
 
     def add_configuration(self, config):
+        """
+        Given a not-known-a-priori configuration add it to the children if it do not already exists
+        """
         if len(config) > 0:
-            # print self.get_data()
-            # print self.children
             initial_config = copy.deepcopy(config)
             search = initial_config[0]
             subconfiguration = initial_config[1:]
-            # print "Subconfiguration passed", str(config), str(subconfiguration)
-            # if self.has_child(search):
             if self.has_children():
                 for c in self.children:
                     if c.get_data() == search:
                         c.add_subconfiguration(subconfiguration)
                         return
-            #     self.populate_subtree(initial_config)
-            # else:
-            #     self.populate_subtree(initial_config)
             self.populate_subtree(initial_config)
 
     def add_subconfiguration(self, config):
+        """
+        Same as before
+        """
         if len(config) > 0:
             initial_config = copy.deepcopy(config)
             search = initial_config[0]
@@ -113,13 +146,12 @@ class Node:
                     if c.get_data() == search:
                         c.add_subconfiguration(subconfiguration)
                         return
-            #     self.populate_subtree(initial_config)
-            # else:
-            #     self.populate_subtree(initial_config)
             self.populate_subtree(initial_config)
 
     def populate_subtree(self, config):
-        # print "Populate subtree", str(config)
+        """
+        Add all config elements to the children list without checks
+        """
         node = self
         for f in config:
             new_node = Node(f)
@@ -127,6 +159,9 @@ class Node:
             node = new_node
 
     def n_of_children(self):
+        """
+        Return the total number of children of a node
+        """
         n = 0
         if self.has_children():
             for c in self.children:
@@ -138,15 +173,24 @@ class Node:
 
 
 class Tree:
-    # Constructor to create a new tree
     def __init__(self, data):
+        """
+        Tree constructor. A tree starts for a root node containing its ID and all the configurations are the immediate
+        child. To retrieve a configuration the tree has to be explored entirely in depth.
+        """
         self.data = Node(data)
-        self.children = []
+        # self.children = []
 
     def root(self):
+        """
+        returns the root of the tree
+        """
         return self.data
 
     def populate_tree(self, data):
+        """
+        Given a set of configurations "data" generates a tree containing all such configurations
+        """
         root = self.root()
         node = None
         for s in data:
@@ -168,103 +212,36 @@ class Tree:
                 i += 1
 
     def get_tree_depth(self):
+        """
+        Return the maximum depth of the tree
+        """
         return self.root().get_depth()
 
     def exists_config(self, config):
+        """
+        Checks if a configuration is contained in the tree
+        """
         root = self.root()
         return root.search_configuration(config)
 
     def exists_config(self, lattice, config):
+        """
+        Checks if a configuration is contained in the tree
+        """
         root = lattice.root()
         return root.search_configuration(config)
 
     def add_config(self, config):
+        """
+        Add a configuration to the tree
+        """
         root = self.root()
         return root.add_configuration(config)
 
-    def closest_neighbour(self, config, lattice):
-        new_configuration = None
-        sphere_radii = lattice.radii_struct["radius"]
-        ordered_radii_idx = lattice.radii_struct["idxs"]
-        sphere_radii_delta = lattice.radii_struct["delta"]
-        i = 1
-        search = True
-        while search and i < len(sphere_radii):
-            # print i
-            idx = ordered_radii_idx[i]
-            if sphere_radii[i] > lattice.max_distance:
-                break
-            delta = sphere_radii_delta[idx]
-            new_conf = self._find_configs_at_distance(config, delta, lattice.discretized_descriptor)
-            if len(new_conf) == 0:
-                new_configuration = None
-                i += 1
-            else:
-                r = numpy.random.randint(0, len(new_conf))
-                new_configuration = new_conf[r]
-                go_to_next_d = False
-                while self.exists_config(new_configuration):
-                    new_conf.pop(r)
-                    if len(new_conf) == 0:
-                        # i += 1
-                        go_to_next_d = True
-                        break
-                    r = numpy.random.randint(0, len(new_conf))
-                    new_configuration = new_conf[r]
-                if go_to_next_d:
-                    i += 1
-                else:
-                    search = False
-        return new_configuration
-
-    def closest_neighbour2(self, config, lattice, max_r):
-        # new_configuration = None
-        sphere_radii = lattice.radii_struct["radius"]
-        ordered_radii_idx = lattice.radii_struct["idxs"]
-        sphere_radii_delta = lattice.radii_struct["delta"]
-        for i in xrange(1, len(ordered_radii_idx)):
-            # print i
-
-            idx = ordered_radii_idx[i]
-            if sphere_radii[idx] > lattice.max_distance:
-                # print "Max radius reached"
-                break
-            delta = sphere_radii_delta[idx]
-            if max_r[0] < sphere_radii[i]:
-                max_r = (sphere_radii[idx], i)
-            new_conf = self._find_configs_at_distance(config, delta, lattice.discretized_descriptor)
-            # If there are no configurations associated to the specific delta, iterate to the next delta
-            if len(new_conf) == 0:
-                # print "There are no configurations associated to the specific delta, iterate to the next delta"
-                continue
-            # Otherwise select one of the not yet selected configurations associated to the specific delta
-            else:
-                increment_radius = False
-                r = numpy.random.randint(0, len(new_conf))
-                new_configuration = new_conf[r]
-                # Check if the configuration exists and iterate until a new one is found
-                while self.exists_config(new_configuration):
-                    # Remove existing configuration from selection
-                    new_conf.pop(r)
-                    # If there are no configuration associated to delta, increment the radius
-                    if len(new_conf) == 0:
-                        # print "There are no other configuration associated to delta, increment the radius"
-                        increment_radius = True
-                        break
-                        # break
-                    r = numpy.random.randint(0, len(new_conf))
-                    new_configuration = new_conf[r]
-
-                if increment_radius:
-                    continue
-                else:
-                    # print "Non existing configuration discovered"
-                    return new_configuration, max_r
-
-        print "Exiting with none. All configuration discovered"
-        return None, max_r
-
     def print_tree(self, name):
+        """
+        Generate a dot file containing the tree
+        """
         tree_script_dot = "digraph lattice {\n"
         indent = 1
         tree_script_dot += '\t'*indent + 'node [fontname="Courier"];\n'
@@ -280,10 +257,12 @@ class Tree:
         output_file = open(name+".gv", "w")
         output_file.write(tree_script_dot)
         output_file.close()
-        # os.system("dot -Tpng -Gsize=9,15\! -Gdpi=100 -o tree.png tree.gv")
         os.system("dot -Tps -Gsize=9,15\! -Gdpi=100 tree.gv -o tree.ps")
 
     def print_subtree(self, node, name, indent):
+        """
+        Support recursive function function
+        """
         tree_script_dot = ""
         if node.has_children():
             parent = name
@@ -295,71 +274,19 @@ class Tree:
 
         return tree_script_dot
 
-    def _check_valid_value(self, value):
-        if value < 0:
-            return False
-        if value > 1:
-            return False
-        return True
-
     def get_n_of_children(self):
+        """
+        Return the total number of tree's children
+        """
         root = self.root()
         return root.n_of_children()
 
     def _find_nearest(self, discrete_set, value):
+        """
+        Given a tree, and the set of discrete values returns the closer admissible value for the tree
+        """
         array = numpy.asarray(discrete_set)
         idx = (numpy.abs(array - value)).argmin()
         return array[idx]
-
-    def _find_configs_at_distance(self, config, deltas, discretized_descriptor):
-        # print
-        # print
-        tmp = []
-        depth = 0
-        if len(config) != 0:
-            c = config[0]
-            d = deltas[0]
-            sum_value = c + d
-            if sum_value <= 1:
-                tmp.append([self._find_nearest(discretized_descriptor[depth], sum_value)])
-            if d != 0:
-                sub_value = c - d
-                if sub_value >= 0:
-                    tmp.append([self._find_nearest(discretized_descriptor[depth], sub_value)])
-            if len(tmp) != tmp:
-                tmp = self._find_remaining_configs(tmp, config[1:], deltas[1:], depth+1, discretized_descriptor)
-            return tmp
-        else:
-            return tmp
-
-    def _find_remaining_configs(self, tmp, config, deltas, depth, discretized_descriptor):
-        # print "TMP:", tmp, "Config", config, "Delta", deltas
-        tmp2 = []
-        if len(config) != 0:
-            for t in tmp:
-                # print t, type(t)
-                c = config[0]
-                d = deltas[0]
-                sum_value = c + d
-                # print "Sum value", sum_value
-                tsum = copy.copy(t)
-                if sum_value <= 1:
-                    tsum.append(self._find_nearest(discretized_descriptor[depth], sum_value))
-                    tmp2.append(tsum)
-                if d != 0:
-                    tsub = copy.copy(t)
-                    sub_value = c - d
-                    # print "Sub value", sub_value
-                    if sub_value >= 0:
-                        tsub.append(self._find_nearest(discretized_descriptor[depth], sub_value))
-                        tmp2.append(tsub)
-
-            # tmp3 = copy.copy(tmp2)
-            if len(tmp2) != 0:
-                # print "Passing: ", tmp2
-                tmp2 = self._find_remaining_configs(tmp2, config[1:], deltas[1:], depth+1, discretized_descriptor)
-            return tmp2
-        else:
-            return tmp
 
 

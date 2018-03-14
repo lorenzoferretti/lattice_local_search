@@ -1,8 +1,15 @@
+########################################################################################################################
+# Author: Lorenzo Ferretti
+# Year: 2018
+#
+# This files contains the Lattice class. The Lattice class describes the design space and contains the information
+# related to the explored configurations.
+########################################################################################################################
+
 import lattice_tree
 import math
 import itertools
 import numpy
-import copy
 
 
 class Lattice:
@@ -11,7 +18,7 @@ class Lattice:
         self.original_descriptor = lattice_descriptor
         self.discretized_descriptor = self.discretize_dataset(lattice_descriptor)
         self.lattice = lattice_tree.Tree('lattice')
-        self.radii_struct = self.radii_vectors()
+        # self.radii_struct = self.radii_vectors()
         self.max_distance = max_distance
 
     def radii_vectors(self):
@@ -69,11 +76,8 @@ class Lattice:
     def revert_discretized_config(self, config):
         tmp = []
         for i in xrange(0, len(config)):
-            # print "i:" , 1, config
-            # print len(self.discretized_descriptor[i]), "i:", i
             for j in xrange(0, len(self.discretized_descriptor[i])):
                 if numpy.isclose(self.discretized_descriptor[i][j], config[i], atol=0.000001):
-                    # idx = self.discretized_descriptor[i].index(round(config[i], 5))
                     tmp.append(self.original_descriptor[i][j])
                     break
         return tmp

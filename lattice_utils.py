@@ -1,50 +1,41 @@
-# def pareto_frontier2d(data):
-#     indicies = sorted(range(len(data)), key=lambda k: data[k][0])
-#     p_idx = []
-#     p_front = []
-#     pivot_idx = indicies[0]
-#     for i in xrange(1, len(indicies)):
-#         # If are equal, I search for the minimum value until they become different
-#         data_pivot = data[pivot_idx]
-#         d = data[indicies[i]]
-#         if data_pivot[0] == d[0]:
-#             if d[1] < data_pivot[1]:
-#                 pivot_idx = indicies[i]
-#                 # update_pivot = False
-#                 # continue
-#         else:
-#             if d[1] < data_pivot[1]:
-#                 p_idx.append(pivot_idx)
-#                 p_front.append(data_pivot)
-#                 pivot_idx = indicies[i]
-#                 # if i == len(indicies)-1:
-#                 #     p_idx.append(pivot_idx)
-#                 #     p_front.append(data[pivot_idx])
-#         if i == len(indicies)-1 and pivot_idx != p_idx[-1]:
-#             p_idx.append(pivot_idx)
-#             p_front.append(data[pivot_idx])
+########################################################################################################################
+# Author: Lorenzo Ferretti
+# Year: 2018
 #
-#     return p_front, p_idx
+# This files contains some function, such metrics, support functions, etc. useful across different projects.
+########################################################################################################################
 
 
 def pareto_frontier2d(points):
-    indicies = sorted(range(len(points)), key=lambda k: points[k].latency)
+    """
+    Function: pareto_frontier2d
+    The function given in input a set of points return the 2 dimensional Pareto frontier elements and the corresponding
+    indexes respect to the original set of point
+
+    Input: A list of points.
+    A list of object characterised by two attributes-area and latency.
+
+    Output: A tuple composed of 2 lists.
+    The first list contains the Pareto dominant objects. The second list contains the indexes of the pareto dominant
+    objects, respect to the original set of points given in input
+    """
+    indexes = sorted(range(len(points)), key=lambda k: points[k].latency)
     p_idx = []
     p_front = []
-    pivot_idx = indicies[0]
-    for i in xrange(1, len(indicies)):
+    pivot_idx = indexes[0]
+    for i in xrange(1, len(indexes)):
         # If are equal, I search for the minimum value until they become different
         data_pivot = points[pivot_idx]
-        d = points[indicies[i]]
+        d = points[indexes[i]]
         if data_pivot.latency == d.latency:
             if d.area < data_pivot.area:
-                pivot_idx = indicies[i]
+                pivot_idx = indexes[i]
         else:
             if d.area < data_pivot.area:
                 p_idx.append(pivot_idx)
                 p_front.append(data_pivot)
-                pivot_idx = indicies[i]
-        if i == len(indicies)-1 and pivot_idx != p_idx[-1]:
+                pivot_idx = indexes[i]
+        if i == len(indexes)-1 and pivot_idx != p_idx[-1]:
             p_idx.append(pivot_idx)
             p_front.append(points[pivot_idx])
 
@@ -52,6 +43,20 @@ def pareto_frontier2d(points):
 
 
 def adrs2d(reference_set, approximate_set):
+    """
+    Function: adrs2d
+    The function given in input a set of reference points and a different set of points calculates the Average Distance
+    from Reference Set among the reference set and the approximate one.
+    ADRS(Pr, Pa) = 1/|Pa| * sum_Pa( min_Pp( delta(Pr,Pa) ) )
+    delta(Pr, Pa) = max(0, ( A(Pa) - A(Pr) ) / A(Pa), ( L(Pa) - L(Pr) ) / L(Pa) )
+
+    Input: 2 list of points.
+    A list points representing the reference set and a list of points representing the approximate one.
+
+    Output: ADRS value.
+    A value representing the ADRS distance among the two sets, the distance of the approximate one with respect to the
+    reference set.
+    """
     n_ref_set = len(reference_set)
     n_app_set = len(approximate_set)
     min_dist_sum = 0
@@ -67,6 +72,17 @@ def adrs2d(reference_set, approximate_set):
 
 
 def _p2p_distance_2d(ref_pt, app_pt):
+    """
+    Function: _p2p_distance_2d
+    Support function used in ADRS
+    Point to point distance for a 2 dimensional ADRS calculation. Implements the delta function of ADRS
+
+    Input: 2 points.
+    The reference point and the approximate point. Both are objects characterised by area and latency attributes.
+
+    Output: A float value
+    The maximum distance among the 2 dimensions considered (in our case area and latency).
+    """
     x = (float(app_pt.latency) - float(ref_pt.latency)) / float(ref_pt.latency)
     y = (float(app_pt.area) - float(ref_pt.area)) / float(ref_pt.area)
     to_find_max = [0, x, y]
