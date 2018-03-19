@@ -41,7 +41,8 @@ class VivdoHLS_Synthesis:
     def synthesise_configuration(self, config):
         c = self.lattice.revert_discretized_config(config)
         script_name = self.generate_tcl_script(c)
-        process = subprocess.Popen(["vivado_hls", "-f", "./exploration_scripts/" + script_name + ".txt", ">>", script_name + ".out"])
+        # process = subprocess.Popen(["vivado_hls", "-f", "./exploration_scripts/" + script_name + ".txt", ">>", script_name + ".out"])
+        process = subprocess.Popen("vivado_hls -f ./exploration_scripts/" + script_name + ".txt >> " + script_name + ".out", shell = True)
         process.wait()
         latency, area = self.get_synthesis_results(script_name)
         return latency, area
@@ -174,27 +175,34 @@ class VivdoHLS_Synthesis:
         return script
 
     def get_synthesis_results(self, script_name):
-        x = None
-        LUT = None
-        FF = None
-        root = xml.etree.ElementTree.parse("./exploration_scripts/"+script_name+"/syn/report/test_function_csynth.xml").getroot()
-        # For each solution extract Area estimation
-        for area_est in root.findall('AreaEstimates'):
-            for resource in area_est.findall('Resources'):
-                for child in resource:
-                    if "FF" in child.tag:
-                        FF = int(child.text)
+        outputfile = open("./exploration_scripts/"+script_name+".out", "r")
+        content = outputfile.read()
+        if content.find("has been removed") > 0:
+            x = 100000
+            LUT = 100000
+            FF = 1000000
+        else:
+            x = None
+            LUT = None
+            FF = None
+            root = xml.etree.ElementTree.parse("./"+self.project_name+"/"+script_name+"/syn/report/test_function_csynth.xml").getroot()
+            # For each solution extract Area estimation
+            for area_est in root.findall('AreaEstimates'):
+                for resource in area_est.findall('Resources'):
+                    for child in resource:
+                        if "FF" in child.tag:
+                            FF = int(child.text)
 
-                    if "LUT" in child.tag:
-                        LUT = int(child.text)
+                        if "LUT" in child.tag:
+                            LUT = int(child.text)
 
-        # For each solution extract Performance estimation
-        for perf_est in root.findall('PerformanceEstimates'):
-            for latency in perf_est.findall('SummaryOfOverallLatency'):
-                for child in latency:
-                    if "Average-caseLatency" in child.tag:
-                        x = int(child.text)
+            # For each solution extract Performance estimation
+            for perf_est in root.findall('PerformanceEstimates'):
+                for latency in perf_est.findall('SummaryOfOverallLatency'):
+                    for child in latency:
+                        if "Average-caseLatency" in child.tag:
+                            x = int(child.text)
 
-        latency = x
-        area = LUT
+            latency = x
+            area = LUT
         return latency, area
