@@ -21,39 +21,6 @@ class Lattice:
         # self.radii_struct = self.radii_vectors()
         self.max_distance = max_distance
 
-    def radii_vectors(self):
-        max_cardinality = 0
-        i = 0
-        # Find max cardinality
-        for descriptor in self.discretized_descriptor:
-            if i == 0:
-                max_cardinality = len(descriptor)
-            else:
-                if len(descriptor) > max_cardinality:
-                    max_cardinality = len(descriptor)
-
-            i += 1
-
-        # Generate distance matrix
-        radii = {}
-        sphere_radii = []
-        sphere_radii_delta = []
-        for element in itertools.product(*self.discretized_descriptor):
-            delta = element
-            tmp = []
-            for e in element:
-                tmp.append(e*e)
-            tmp_num = sum(tmp)
-            d = math.sqrt(tmp_num)
-            sphere_radii.append(d)
-            sphere_radii_delta.append(delta)
-
-        ordered_radii_idx = [b[0] for b in sorted(enumerate(sphere_radii), key=lambda i: i[1])]
-        radii["radius"] = sphere_radii
-        radii["delta"] = sphere_radii_delta
-        radii["idxs"] = ordered_radii_idx
-        return radii
-
     def discretize_dataset(self, lattice_descriptor):
         discretized_feature = []
         for feature in lattice_descriptor:
