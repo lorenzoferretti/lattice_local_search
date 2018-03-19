@@ -41,7 +41,7 @@ class VivdoHLS_Synthesis:
     def synthesise_configuration(self, config):
         c = self.lattice.revert_discretized_config(config)
         script_name = self.generate_tcl_script(c)
-        process = subprocess.Popen(["vivado_hls -f " + script_name + ".txt >> " + script_name + ".out"])
+        process = subprocess.Popen(["vivado_hls -f ./exploration_scripts/" + script_name + ".txt >> " + script_name + ".out"])
         process.wait()
         latency, area = self.get_synthesis_results(script_name)
         return latency, area
