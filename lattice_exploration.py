@@ -35,35 +35,45 @@ for run in xrange(n_of_runs):
     max_radius = 0
 
     # Probabilistic sample according to beta distribution
-    samples = lattice.beta_sampling(0.1, 0.1, 20)
+    # samples = lattice.beta_sampling(0.1, 0.1, 20)
 
     # Populate the tree with the initial sampled values
-    lattice.lattice.populate_tree(samples)
-    n_of_synthesis = len(samples)
+    # lattice.lattice.populate_tree(samples)
+    # n_of_synthesis = len(samples)
 
     # Synthesise sampled configuration
     # hls = FakeSynthesis(entire_ds, lattice)
     prj_description = {"prj_name": "Autocorrelation_extended",
-                       "test_bench_file": "gsm.c",
-                       # "source_folder": "./test_folder",
-                       "source_folder": "/home/lpozzi/shared/group_shared/benchmarks/CHStone_v1.11_150204/gsm/SRC_HLS/",
+                       # "test_bench_file": "gsm.c",
+                       "test_bench_file": "tb.c",
+                       "source_folder": "./test_folder",
+                       # "source_folder": "/home/lpozzi/shared/group_shared/benchmarks/CHStone_v1.11_150204/gsm/SRC_HLS/",
                        "top_function": "Autocorrelation"}
 
     hls = VivdoHLS_Synthesis(lattice, Autocorrelation_extended.autcorrelation_extended,
                              Autocorrelation_extended.autcorrelation_extended_directives_ordered,
                              Autocorrelation_extended.autcorrelation_extended_bundling,
                              prj_description)
+
     sampled_configurations_synthesised = []
-    for s in samples:
-        latency, area = hls.synthesise_configuration(s)
-        synthesised_configuration = DSpoint(latency, area, s)
+    # for s in samples:
+    samples = []
+    while len(samples) <= 20:
+        sample = lattice.beta_sampling(0.1, 0.1, 1).pop()
+        latency, area = hls.synthesise_configuration(sample)
+        if latency is None:
+            lattice.lattice.add_config(sample)
+            pass
+        samples.append(sample)
+        synthesised_configuration = DSpoint(latency, area, sample)
         sampled_configurations_synthesised.append(synthesised_configuration)
+        lattice.lattice.add_config(sample)
 
     # Get pareto frontier from sampled configuration
     pareto_frontier, pareto_frontier_idx = lattice_utils.pareto_frontier2d(sampled_configurations_synthesised)
 
     # Get exhaustive pareto frontier (known only if ground truth exists)
-    pareto_frontier_exhaustive, pareto_frontier_exhaustive_idx = lattice_utils.pareto_frontier2d(entire_ds)
+    # pareto_frontier_exhaustive, pareto_frontier_exhaustive_idx = lattice_utils.pareto_frontier2d(entire_ds)
 
     pareto_frontier_before_exploration = copy.deepcopy(pareto_frontier)
 
@@ -84,7 +94,8 @@ for run in xrange(n_of_runs):
 
     # Calculate ADRS
     adrs_evolution = []
-    adrs = lattice_utils.adrs2d(pareto_frontier_exhaustive, pareto_frontier)
+    # adrs = lattice_utils.adrs2d(pareto_frontier_exhaustive, pareto_frontier)
+    adrs = lattice_utils.adrs2d(pareto_frontier_before_exploration, pareto_frontier)
     adrs_evolution.append(adrs)
 
     # Select randomly a pareto configuration and find explore his neighbour
@@ -114,7 +125,8 @@ for run in xrange(n_of_runs):
         pareto_frontier, pareto_frontier_idx = lattice_utils.pareto_frontier2d(pareto_frontier)
 
         # Calculate ADRS
-        adrs = lattice_utils.adrs2d(pareto_frontier_exhaustive, pareto_frontier)
+        # adrs = lattice_utils.adrs2d(pareto_frontier_exhaustive, pareto_frontier)
+        adrs = lattice_utils.adrs2d(pareto_frontier_before_exploration, pareto_frontier)
         adrs_evolution.append(adrs)
         if adrs == 0:
             break

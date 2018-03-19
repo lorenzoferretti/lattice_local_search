@@ -41,6 +41,8 @@ class VivdoHLS_Synthesis:
     def synthesise_configuration(self, config):
         c = self.lattice.revert_discretized_config(config)
         script_name = self.generate_tcl_script(c)
+        if script_name is None:
+            return None, None
         # process = subprocess.Popen(["vivado_hls", "-f", "./exploration_scripts/" + script_name + ".txt", ">>", script_name + ".out"])
         process = subprocess.Popen("vivado_hls -f ./exploration_scripts/" + script_name + ".txt >> ./exploration_scripts/" + script_name + ".out", shell=True)
         process.wait()
@@ -85,7 +87,10 @@ class VivdoHLS_Synthesis:
             else:
                 conf = configuration[c]
                 directive = self.ds_descriptor_ordered[c]
-                script += self.add_directive(conf, directive)
+                directive = self.add_directive(conf, directive, script)
+                if directive is None:
+                    return None
+                script += directive
 
         script += "csynth_design" + new_line
         script += "exit" + new_line
@@ -97,14 +102,16 @@ class VivdoHLS_Synthesis:
 
         return script_file
 
-    def add_directive(self, directive_value, directive):
+    def add_directive(self, directive_value, directive, script):
         kind = directive[0].split('-')[0]
         if kind == "unrolling":
             script = self.add_unrolling_directive(directive_value, directive)
         if kind == "bundling":
             script = self.add_bundling_directive(directive_value)
         if kind == "pipelining":
-            script = self.add_pipeline_directive(directive_value, directive)
+            script = self.add_pipeline_directive(directive_value, directive, script)
+            if script is None:
+                return None
         if kind == "inlining":
             script = self.add_inlining_directive(directive_value, directive)
         if kind == "partitioning":
@@ -135,11 +142,20 @@ class VivdoHLS_Synthesis:
                       self.top_function + "\" " + bundle_ports[i] + new_line
         return script
 
-    def add_pipeline_directive(self, directive_value, directive):
+    def add_pipeline_directive(self, directive_value, directive, old_script):
         new_line = "\n"
         script = ""
         target = directive[0].split('-')[1]
-        if target.find("loop") > 0:
+        idx = old_script.find(target)
+        if idx >= 0:
+            substring = old_script[idx-30:idx]
+            unroll = [int(s) for s in substring.split() if s.isdigit()]
+            if len(unroll) != 0:
+                unroll = unroll.pop()
+                if unroll == 9 or unroll == 160 or unroll == 152:
+                    return None
+
+        if target.find("loop") >= 0:
             if directive_value != 0:
                 script += 'set_directive_pipeline \"' + self.top_function + "/" + target + '\"\n'
             else:
