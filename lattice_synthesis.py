@@ -203,6 +203,6 @@ class VivdoHLS_Synthesis:
                         if "Average-caseLatency" in child.tag:
                             x = int(child.text)
 
-            latency = x
-            area = LUT
+        latency = x
+        area = LUT
         return latency, area
