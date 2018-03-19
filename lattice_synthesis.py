@@ -41,7 +41,7 @@ class VivdoHLS_Synthesis:
     def synthesise_configuration(self, config):
         c = self.lattice.revert_discretized_config(config)
         script_name = self.generate_tcl_script(c)
-        process = subprocess.Popen(["vivado_hls -f ./exploration_scripts/" + script_name + ".txt >> " + script_name + ".out"])
+        process = subprocess.Popen(["vivado_hls", "-f", "./exploration_scripts/" + script_name + ".txt", ">>", script_name + ".out"])
         process.wait()
         latency, area = self.get_synthesis_results(script_name)
         return latency, area
@@ -116,7 +116,7 @@ class VivdoHLS_Synthesis:
         loop_name = directive[0].split('-')[1]
         script = ""
         if directive_value != 0:
-            script += "set_directive_unroll -factor + \"" + str(directive_value) + self.top_function + "/" + loop_name \
+            script += "set_directive_unroll -factor " + str(directive_value) + " \"" + self.top_function + "/" + loop_name \
                       + "\"" + new_line
         else:
             script += "set_directive_loop_flatten -off \"" + self.top_function + "/" + loop_name + "\"" + new_line
