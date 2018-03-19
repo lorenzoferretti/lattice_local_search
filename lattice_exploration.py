@@ -4,7 +4,7 @@ from lattice_ds_point import DSpoint
 from lattice_sphere_tree import SphereTree as st
 import lattice_utils
 import datasets
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import copy
 
@@ -67,20 +67,20 @@ for run in xrange(n_of_runs):
 
     pareto_frontier_before_exploration = copy.deepcopy(pareto_frontier)
 
-    # PLOT start
-    if plot_chart:
-        for p in sampled_configurations_synthesised:
-            plt.scatter(p.latency, p.area, color='b')
-
-        for pp in pareto_frontier_exhaustive:
-            plt.scatter(pp.latency, pp.area, color='r')
-
-        for pp in pareto_frontier:
-            plt.scatter(pp.latency, pp.area, color='g')
-
-        plt.grid()
-        # plt.draw()
-        # PLOT end
+    # # PLOT start
+    # if plot_chart:
+    #     for p in sampled_configurations_synthesised:
+    #         plt.scatter(p.latency, p.area, color='b')
+    #
+    #     for pp in pareto_frontier_exhaustive:
+    #         plt.scatter(pp.latency, pp.area, color='r')
+    #
+    #     for pp in pareto_frontier:
+    #         plt.scatter(pp.latency, pp.area, color='g')
+    #
+    #     plt.grid()
+    #     # plt.draw()
+    #     # PLOT end
 
     # Calculate ADRS
     adrs_evolution = []
@@ -143,29 +143,29 @@ for run in xrange(n_of_runs):
     adrs_evolution = []
     max_radius = 0
 
-    if plot_chart:
-        fig1 = plt.figure()
-        for p in sampled_configurations_synthesised:
-            plt.scatter(p.latency, p.area, color='b')
-
-        for pp in pareto_frontier_exhaustive:
-            plt.scatter(pp.latency, pp.area, color='r', s=40)
-
-        for pp in pareto_frontier:
-            plt.scatter(pp.latency, pp.area, color='g')
-
-        fig2 = plt.figure()
-        plt.grid()
-        pareto_frontier.sort(key=lambda x: x.latency)
-        plt.step([i.latency for i in pareto_frontier], [i.area for i in pareto_frontier], where='post', color='r')
-        pareto_frontier_before_exploration.sort(key=lambda x: x.latency)
-        plt.step([i.latency for i in pareto_frontier_before_exploration], [i.area for i in pareto_frontier_before_exploration], where='post', color='b')
-        # plt.draw()
-
-        fig3 = plt.figure()
-        plt.grid()
-        plt.plot(adrs_evolution)
-        plt.show()
+    # if plot_chart:
+    #     fig1 = plt.figure()
+    #     for p in sampled_configurations_synthesised:
+    #         plt.scatter(p.latency, p.area, color='b')
+    #
+    #     for pp in pareto_frontier_exhaustive:
+    #         plt.scatter(pp.latency, pp.area, color='r', s=40)
+    #
+    #     for pp in pareto_frontier:
+    #         plt.scatter(pp.latency, pp.area, color='g')
+    #
+    #     fig2 = plt.figure()
+    #     plt.grid()
+    #     pareto_frontier.sort(key=lambda x: x.latency)
+    #     plt.step([i.latency for i in pareto_frontier], [i.area for i in pareto_frontier], where='post', color='r')
+    #     pareto_frontier_before_exploration.sort(key=lambda x: x.latency)
+    #     plt.step([i.latency for i in pareto_frontier_before_exploration], [i.area for i in pareto_frontier_before_exploration], where='post', color='b')
+    #     # plt.draw()
+    #
+    #     fig3 = plt.figure()
+    #     plt.grid()
+    #     plt.plot(adrs_evolution)
+    #     plt.show()
 
 # mean_adrs = lattice_utils.get_statistics(collected_run)
 
