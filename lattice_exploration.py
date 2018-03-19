@@ -44,9 +44,9 @@ for run in xrange(n_of_runs):
     # Synthesise sampled configuration
     # hls = FakeSynthesis(entire_ds, lattice)
     prj_description = {"prj_name": "Autocorrelation_extended",
-                       "test_bench_file": "tb.c",
-                       "source_folder": "./test_folder",
-                       # "source_folder": "/home/lpozzi/shared/group_shared/benchmarks/CHStone_v1.11_150204/gsm/SRC_HLS/",
+                       "test_bench_file": "gsm.c",
+                       # "source_folder": "./test_folder",
+                       "source_folder": "/home/lpozzi/shared/group_shared/benchmarks/CHStone_v1.11_150204/gsm/SRC_HLS/",
                        "top_function": "Autocorrelation"}
 
     hls = VivdoHLS_Synthesis(lattice, Autocorrelation_extended.autcorrelation_extended,
