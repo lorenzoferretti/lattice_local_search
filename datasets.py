@@ -43,7 +43,7 @@ class Datasets:
 
         self.autcorrelation_extended_bundling_config = {'bundling': [0, 1]}
 
-        self.autcorrelation_extended_partitioning = {'s': [0, 2, 4, 8, 16, 32]}  # 6
+        self.autcorrelation_extended_partitioning = {'s': [0, 2, 4, 8]}  # 4
                                                         #'L_ACF': [0, 3, 9],  # 3
 
         self.autcorrelation_extended_clocks = {'clock': [5, 10, 15, 20, 25, 30, 35]}  # 7
