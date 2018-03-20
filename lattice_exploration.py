@@ -31,7 +31,7 @@ else:
 collected_run = []
 for run in xrange(n_of_runs):
     # Create Lattice
-    lattice = Lattice(feature_sets, 4)
+    lattice = Lattice(feature_sets, 1000)
     max_radius = 0
 
     # Probabilistic sample according to beta distribution
@@ -70,6 +70,7 @@ for run in xrange(n_of_runs):
         lattice.lattice.add_config(sample)
 
     print samples
+    print len(samples)
     print len(sampled_configurations_synthesised)
     # Get pareto frontier from sampled configuration
     pareto_frontier, pareto_frontier_idx = lattice_utils.pareto_frontier2d(sampled_configurations_synthesised)
