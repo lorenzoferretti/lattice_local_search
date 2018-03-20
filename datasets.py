@@ -64,10 +64,10 @@ class Datasets:
 
         self.autcorrelation_extended_directives_ordered = [
             ('unrolling-max_loop', self.autcorrelation_extended['unrolling']['max_loop']),
-            ('clock-clock', self.autcorrelation_extended['clock']['clock']),
             ('unrolling-rescaling_loop', self.autcorrelation_extended['unrolling']['rescaling_loop']),
             ('unrolling-gsm_mult_loop', self.autcorrelation_extended['unrolling']['gsm_mult_loop']),
             ('unrolling-compute_loop', self.autcorrelation_extended['unrolling']['compute_loop']),
+            ('clock-clock', self.autcorrelation_extended['clock']['clock']),
             ('unrolling-init_zero_loop', self.autcorrelation_extended['unrolling']['init_zero_loop']),
             ('unrolling-left_shift_loop', self.autcorrelation_extended['unrolling']['left_shift_loop']),
             ('partitioning-s', self.autcorrelation_extended['partitioning']['s']),
