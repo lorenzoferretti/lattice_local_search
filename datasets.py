@@ -20,12 +20,12 @@ class Datasets:
 
         # Definition of autocorrelation extended_experiments
 
-        self.autcorrelation_extended_unrolling = {'max_loop': [0, 2, 4, 8, 16, 32, 40, 80, 160],  # 9
-                                                  'gsm_mult_loop': [0, 2,  4, 8, 16, 32, 40, 80, 160],  # 9
+        self.autcorrelation_extended_unrolling = {'max_loop': [0, 2, 4, 8, 16, 32, 40, 80],  # 9
+                                                  'gsm_mult_loop': [0, 2,  4, 8, 16, 32, 40, 80],  # 9
                                                   'init_zero_loop': [0, 3, 9],  # 3
-                                                  'compute_loop': [0, 2, 4, 8, 19, 38, 76, 152],  # 8
+                                                  'compute_loop': [0, 2, 4, 8, 19, 38, 76],  # 8
                                                   'left_shift_loop': [0, 3, 9],  # 3
-                                                  'rescaling_loop': [0, 2, 4, 8, 16, 32, 40, 80, 160]}  # 9
+                                                  'rescaling_loop': [0, 2, 4, 8, 16, 32, 40, 80]}  # 9
 
         self.autcorrelation_extended_inlining = {'gsm_norm': [0, 1]}  # 2
 
@@ -66,11 +66,11 @@ class Datasets:
             ('unrolling-max_loop', self.autcorrelation_extended['unrolling']['max_loop']),
             ('unrolling-rescaling_loop', self.autcorrelation_extended['unrolling']['rescaling_loop']),
             ('unrolling-gsm_mult_loop', self.autcorrelation_extended['unrolling']['gsm_mult_loop']),
-            ('unrolling-compute_loop', self.autcorrelation_extended['unrolling']['compute_loop']),
             ('clock-clock', self.autcorrelation_extended['clock']['clock']),
+            ('unrolling-compute_loop', self.autcorrelation_extended['unrolling']['compute_loop']),
+            ('partitioning-s', self.autcorrelation_extended['partitioning']['s']),
             ('unrolling-init_zero_loop', self.autcorrelation_extended['unrolling']['init_zero_loop']),
             ('unrolling-left_shift_loop', self.autcorrelation_extended['unrolling']['left_shift_loop']),
-            ('partitioning-s', self.autcorrelation_extended['partitioning']['s']),
             # ('pipelining-left_shift_loop', self.autcorrelation_extended['pipelining']['left_shift_loop']),
             # ('pipelining-gsm_mult_loop', self.autcorrelation_extended['pipelining']['gsm_mult_loop']),
             # ('pipelining-gsm_norm', self.autcorrelation_extended['pipelining']['gsm_norm']),
