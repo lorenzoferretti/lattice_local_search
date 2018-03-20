@@ -113,9 +113,9 @@ for run in xrange(n_of_runs):
     while new_configuration is not None:
         # Synthesise configuration
         latency, area = hls.synthesise_configuration(new_configuration)
-	if latency is None:
+        if latency is None:
             lattice.lattice.add_config(sample)
-	    # Find new configuration to explore
+            # Find new configuration to explore
             # Select randomly a pareto configuration
             r = np.random.randint(0, len(pareto_frontier))
             pareto_solution_to_explore = pareto_frontier[r].configuration
@@ -126,10 +126,10 @@ for run in xrange(n_of_runs):
             max_radius = max(max_radius, sphere.radius)
 
             if new_configuration is None:
-            	print "Exploration terminated"
-            	break
+                print "Exploration terminated"
+                break
             if max_radius > lattice.max_distance:
-            	print "Exploration terminated, max radius reached"
+                print "Exploration terminated, max radius reached"
                 break
             continue
         # Generate a new design point
