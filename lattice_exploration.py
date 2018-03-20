@@ -44,10 +44,10 @@ for run in xrange(n_of_runs):
     # Synthesise sampled configuration
     # hls = FakeSynthesis(entire_ds, lattice)
     prj_description = {"prj_name": "Autocorrelation_extended",
-                       # "test_bench_file": "gsm.c",
-                       "test_bench_file": "tb.c",
-                       "source_folder": "./test_folder",
-                       # "source_folder": "/home/lpozzi/shared/group_shared/benchmarks/CHStone_v1.11_150204/gsm/SRC_HLS/",
+                       "test_bench_file": "gsm.c",
+                       #"test_bench_file": "tb.c",
+                       #"source_folder": "./test_folder",
+                       "source_folder": "/home/lpozzi/shared/group_shared/benchmarks/CHStone_v1.11_150204/gsm/SRC_HLS/",
                        "top_function": "Autocorrelation"}
 
     hls = VivdoHLS_Synthesis(lattice, Autocorrelation_extended.autcorrelation_extended,
@@ -58,17 +58,19 @@ for run in xrange(n_of_runs):
     sampled_configurations_synthesised = []
     # for s in samples:
     samples = []
-    while len(samples) <= 20:
+    while len(samples) < 20:
         sample = lattice.beta_sampling(0.1, 0.1, 1).pop()
         latency, area = hls.synthesise_configuration(sample)
         if latency is None:
             lattice.lattice.add_config(sample)
-            pass
+            continue
         samples.append(sample)
         synthesised_configuration = DSpoint(latency, area, sample)
         sampled_configurations_synthesised.append(synthesised_configuration)
         lattice.lattice.add_config(sample)
 
+    print samples
+    print len(sampled_configurations_synthesised)
     # Get pareto frontier from sampled configuration
     pareto_frontier, pareto_frontier_idx = lattice_utils.pareto_frontier2d(sampled_configurations_synthesised)
 
@@ -111,7 +113,25 @@ for run in xrange(n_of_runs):
     while new_configuration is not None:
         # Synthesise configuration
         latency, area = hls.synthesise_configuration(new_configuration)
+	if latency is None:
+            lattice.lattice.add_config(sample)
+	    # Find new configuration to explore
+            # Select randomly a pareto configuration
+            r = np.random.randint(0, len(pareto_frontier))
+            pareto_solution_to_explore = pareto_frontier[r].configuration
 
+            # Explore the closer element locally
+            sphere = st(pareto_solution_to_explore, lattice)
+            new_configuration = sphere.random_closest_element
+            max_radius = max(max_radius, sphere.radius)
+
+            if new_configuration is None:
+            	print "Exploration terminated"
+            	break
+            if max_radius > lattice.max_distance:
+            	print "Exploration terminated, max radius reached"
+                break
+            continue
         # Generate a new design point
         ds_point = DSpoint(latency, area, new_configuration)
 

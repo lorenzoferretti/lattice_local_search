@@ -201,7 +201,7 @@ class VivdoHLS_Synthesis:
             x = None
             LUT = None
             FF = None
-            root = xml.etree.ElementTree.parse("./"+self.project_name+"/"+script_name+"/syn/report/test_function_csynth.xml").getroot()
+            root = xml.etree.ElementTree.parse("./"+self.project_name+"/"+script_name+"/syn/report/"+self.top_function+"_csynth.xml").getroot()
             # For each solution extract Area estimation
             for area_est in root.findall('AreaEstimates'):
                 for resource in area_est.findall('Resources'):
