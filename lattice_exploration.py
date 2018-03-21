@@ -31,7 +31,7 @@ else:
 collected_run = []
 for run in xrange(n_of_runs):
     # Create Lattice
-    lattice = Lattice(feature_sets, 1000)
+    lattice = Lattice(feature_sets, 10)
     max_radius = 0
 
     # Probabilistic sample according to beta distribution
@@ -118,6 +118,7 @@ for run in xrange(n_of_runs):
 
     # Until there are configurations to explore, try to explore these
     while new_configuration is not None:
+        print "New iteration"
         # Synthesise configuration
         latency, area = hls.synthesise_configuration(new_configuration)
         # if latency is None:
@@ -141,6 +142,7 @@ for run in xrange(n_of_runs):
         #     continue
         # Generate a new design point
         ds_point = DSpoint(latency, area, new_configuration)
+        print "Lat:", latency, "\tArea:", area
 
         # Update known synthesis values and configurations(only pareto + the new one)
         pareto_frontier.append(ds_point)
