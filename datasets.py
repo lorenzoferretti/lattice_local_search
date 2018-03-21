@@ -29,7 +29,7 @@ class Datasets:
 
         self.autcorrelation_extended_inlining = {'gsm_norm': [0, 1]}  # 2
 
-        self.autcorrelation_extended_pipeline = {'gsm_norm': [0, 1]}  # 2
+        # self.autcorrelation_extended_pipeline = {'gsm_norm': [0, 1]  # 2
         #                                          'max_loop': [0, 1],  # 2
         #                                          'gsm_mult_loop': [0, 1],  # 2
         #                                          'init_zero_loop': [0, 1],  # 2
@@ -50,7 +50,7 @@ class Datasets:
 
         self.autcorrelation_extended = {'unrolling': self.autcorrelation_extended_unrolling,
                                         'inlining': self.autcorrelation_extended_inlining,
-                                        'pipelining': self.autcorrelation_extended_pipeline,
+                                        # 'pipelining': self.autcorrelation_extended_pipeline,
                                         'bundling': self.autcorrelation_extended_bundling_config,
                                         # 'partitioning': self.autcorrelation_extended_partitioning,
                                         'clock': self.autcorrelation_extended_clocks}
