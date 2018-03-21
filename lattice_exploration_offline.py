@@ -8,10 +8,13 @@ import datasets
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
+import sys
 
+
+sys.setrecursionlimit(15200)
 # Read dataset
 # benchmark = ["ChenIDCt", "adpcm_decode", "adpcm_encode", "Autocorrelation", "Reflection_coefficients"]
-benchmark = ["Reflection_coefficients"]
+benchmark = ["Autocorrelation"]
 for b in benchmark:
     database = datasets.Datasets(b)
     synthesis_result = database.benchmark_synthesis_results
