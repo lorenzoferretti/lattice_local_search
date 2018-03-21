@@ -20,12 +20,12 @@ class Datasets:
 
         # Definition of autocorrelation extended_experiments
 
-        self.autcorrelation_extended_unrolling = {'max_loop': [0, 2, 4, 8, 16, 32, 40, 80],  # 9
-                                                  'gsm_mult_loop': [0, 2,  4, 8, 16, 32, 40, 80],  # 9
+        self.autcorrelation_extended_unrolling = {'max_loop': [0, 2, 4, 8, 16, 32, 40, 80],  # 8
+                                                  'gsm_mult_loop': [0, 2,  4, 8, 16, 32, 40, 80],  # 8
                                                   'init_zero_loop': [0, 3, 9],  # 3
-                                                  'compute_loop': [0, 2, 4, 8, 19, 38, 76],  # 8
+                                                  'compute_loop': [0, 2, 4, 8, 19, 38],  # 6
                                                   'left_shift_loop': [0, 3, 9],  # 3
-                                                  'rescaling_loop': [0, 2, 4, 8, 16, 32, 40, 80]}  # 9
+                                                  'rescaling_loop': [0, 2, 4, 8, 16, 32, 40, 80]}  # 8
 
         self.autcorrelation_extended_inlining = {'gsm_norm': [0, 1]}  # 2
 
