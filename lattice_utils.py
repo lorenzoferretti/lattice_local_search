@@ -5,6 +5,7 @@
 # This files contains some function, such metrics, support functions, etc. useful across different projects.
 ########################################################################################################################
 from itertools import izip_longest, imap
+import math
 
 
 def pareto_frontier2d(points):
@@ -93,13 +94,18 @@ def _p2p_distance_2d(ref_pt, app_pt):
 
 def get_statistics(collected_data):
     adrs = []
+    radii = []
+    final_adrs = []
     for i in collected_data:
         # print i[1]
         adrs.append(i[1])
+        radii.append(i[2])
+        final_adrs.append(i[1][-1])
     print adrs
     averages = imap(avg, izip_longest(*adrs))
+    final_adrs_mean = avg(final_adrs)
     # averages = [np.ma.average(ma.masked_values(temp_list, None)) for temp_list in izip_longest(*adrs)]
-    return list(averages)
+    return list(averages), radii, final_adrs_mean
 
 
 def avg(x):
@@ -109,3 +115,12 @@ def avg(x):
             x[i] = 0
     x = [i for i in x if i is not None]
     return sum(x, 0.0) / len(x)
+
+
+def get_euclidean_distance(a, b):
+    tmp = 0
+    for i in xrange(len(a)):
+        tmp += ((a[i]) - (b[i])) ** 2
+
+    tmp = math.sqrt(tmp)
+    return tmp

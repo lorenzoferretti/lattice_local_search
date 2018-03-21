@@ -79,6 +79,11 @@ for run in xrange(n_of_runs):
     # pareto_frontier_exhaustive, pareto_frontier_exhaustive_idx = lattice_utils.pareto_frontier2d(entire_ds)
 
     pareto_frontier_before_exploration = copy.deepcopy(pareto_frontier)
+    intial_pareto_frontier_latency = []
+    intial_pareto_frontier_area = []
+    for pp in pareto_frontier_before_exploration:
+        intial_pareto_frontier_latency.append(pp.latency)
+        intial_pareto_frontier_area.append(pp.area)
 
     # # PLOT start
     # if plot_chart:
@@ -115,7 +120,7 @@ for run in xrange(n_of_runs):
         # Synthesise configuration
         latency, area = hls.synthesise_configuration(new_configuration)
         if latency is None:
-            lattice.lattice.add_config(sample)
+            lattice.lattice.add_config(new_configuration)
             # Find new configuration to explore
             # Select randomly a pareto configuration
             r = np.random.randint(0, len(pareto_frontier))
@@ -170,6 +175,13 @@ for run in xrange(n_of_runs):
             break
 
         n_of_synthesis += 1
+        print(n_of_synthesis)
+
+    final_pareto_frontier_latency = []
+    final_pareto_frontier_area = []
+    for pp in pareto_frontier:
+        final_pareto_frontier_latency.append(pp.latency)
+        final_pareto_frontier_area.append(pp.area)
 
     collected_run.append((n_of_synthesis, adrs_evolution, max_radius))
     n_of_synthesis = 0
@@ -200,8 +212,28 @@ for run in xrange(n_of_runs):
     #     plt.plot(adrs_evolution)
     #     plt.show()
 
-# mean_adrs = lattice_utils.get_statistics(collected_run)
+mean_adrs, radii, final_adrs_mean = lattice_utils.get_statistics(collected_run)
+data_file = open("mean_adrs.txt","w")
+data_file.write(str(mean_adrs))
+data_file.close()
 
+data_file = open("radii.txt", "w")
+data_file.write(str(radii))
+data_file.close()
+
+data_file = open("final_adrs_mean.txt", "w")
+data_file.write(str(final_adrs_mean))
+data_file.close()
+
+data_file = open("inital_pareto.txt","w")
+data_file.write(str(intial_pareto_frontier_latency))
+data_file.write(str(intial_pareto_frontier_area))
+data_file.close()
+
+data_file = open("final_pareto.txt","w")
+data_file.write(str(final_pareto_frontier_latency))
+data_file.write(str(final_pareto_frontier_area))
+data_file.close()
 # print mean_adrs
 # plt.plot(mean_adrs)
 # plt.show()
