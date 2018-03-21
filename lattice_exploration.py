@@ -61,9 +61,9 @@ for run in xrange(n_of_runs):
     while len(samples) < 20:
         sample = lattice.beta_sampling(0.1, 0.1, 1).pop()
         latency, area = hls.synthesise_configuration(sample)
-        if latency is None:
-            lattice.lattice.add_config(sample)
-            continue
+        # if latency is None:
+        #     lattice.lattice.add_config(sample)
+        #     continue
         samples.append(sample)
         synthesised_configuration = DSpoint(latency, area, sample)
         sampled_configurations_synthesised.append(synthesised_configuration)
@@ -120,25 +120,25 @@ for run in xrange(n_of_runs):
     while new_configuration is not None:
         # Synthesise configuration
         latency, area = hls.synthesise_configuration(new_configuration)
-        if latency is None:
-            lattice.lattice.add_config(new_configuration)
-            # Find new configuration to explore
-            # Select randomly a pareto configuration
-            r = np.random.randint(0, len(pareto_frontier))
-            pareto_solution_to_explore = pareto_frontier[r].configuration
-
-            # Explore the closer element locally
-            sphere = st(pareto_solution_to_explore, lattice)
-            new_configuration = sphere.random_closest_element
-            max_radius = max(max_radius, sphere.radius)
-
-            if new_configuration is None:
-                print "Exploration terminated"
-                break
-            if max_radius > lattice.max_distance:
-                print "Exploration terminated, max radius reached"
-                break
-            continue
+        # if latency is None:
+        #     lattice.lattice.add_config(new_configuration)
+        #     # Find new configuration to explore
+        #     # Select randomly a pareto configuration
+        #     r = np.random.randint(0, len(pareto_frontier))
+        #     pareto_solution_to_explore = pareto_frontier[r].configuration
+        #
+        #     # Explore the closer element locally
+        #     sphere = st(pareto_solution_to_explore, lattice)
+        #     new_configuration = sphere.random_closest_element
+        #     max_radius = max(max_radius, sphere.radius)
+        #
+        #     if new_configuration is None:
+        #         print "Exploration terminated"
+        #         break
+        #     if max_radius > lattice.max_distance:
+        #         print "Exploration terminated, max radius reached"
+        #         break
+        #     continue
         # Generate a new design point
         ds_point = DSpoint(latency, area, new_configuration)
 
@@ -214,7 +214,7 @@ for run in xrange(n_of_runs):
     #     plt.show()
 
 mean_adrs, radii, final_adrs_mean = lattice_utils.get_statistics(collected_run)
-data_file = open("mean_adrs.txt","w")
+data_file = open("mean_adrs.txt", "w")
 data_file.write(str(mean_adrs))
 data_file.close()
 
