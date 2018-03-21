@@ -96,16 +96,23 @@ def get_statistics(collected_data):
     adrs = []
     radii = []
     final_adrs = []
+    avg_distances = []
+    min_distances = []
+    max_distances = []
     for i in collected_data:
         # print i[1]
         adrs.append(i[1])
         radii.append(i[2])
         final_adrs.append(i[1][-1])
+        min_distances.append(min(i[3]))
+        avg_distances.append(avg(i[3]))
+        max_distances.append(max(i[3]))
     print adrs
     averages = imap(avg, izip_longest(*adrs))
     final_adrs_mean = avg(final_adrs)
+    averages_distances = (avg(min_distances), avg(avg_distances), avg(max_distances))
     # averages = [np.ma.average(ma.masked_values(temp_list, None)) for temp_list in izip_longest(*adrs)]
-    return list(averages), radii, final_adrs_mean
+    return list(averages), radii, final_adrs_mean, averages_distances
 
 
 def avg(x):

@@ -10,117 +10,136 @@ import numpy as np
 import copy
 
 # Read dataset
-ChenIDCt = datasets.Datasets("ChenIDCt")
-synthesis_result = ChenIDCt.benchmark_synthesis_results
-configurations = ChenIDCt.benchmark_configurations
-feature_sets = ChenIDCt.benchmark_feature_sets
+# benchmark = ["ChenIDCt", "adpcm_decode", "adpcm_encode", "Autocorrelation", "Reflection_coefficients"]
+benchmark = ["Reflection_coefficients"]
+for b in benchmark:
+    database = datasets.Datasets(b)
+    synthesis_result = database.benchmark_synthesis_results
+    configurations = database.benchmark_configurations
+    feature_sets = database.benchmark_feature_sets
 
-entire_ds = []
-for i in xrange(len(synthesis_result)):
-    entire_ds.append(DSpoint(synthesis_result[i][0], synthesis_result[i][1], list(configurations[i])))
+    entire_ds = []
+    for i in xrange(len(synthesis_result)):
+        entire_ds.append(DSpoint(synthesis_result[i][0], synthesis_result[i][1], list(configurations[i])))
 
-# Autocorrelation_extended = datasets.Datasets("Autocorrelation_extended")
-# feature_sets = [i[1] for i in Autocorrelation_extended.autcorrelation_extended_directives_ordered]
+    # Autocorrelation_extended = datasets.Datasets("Autocorrelation_extended")
+    # feature_sets = [i[1] for i in Autocorrelation_extended.autcorrelation_extended_directives_ordered]
 
-# While used to run the experiments multiple times
-n_of_runs = 5
-if n_of_runs > 1:
-    plot_chart = False
-else:
-    plot_chart = True
+    # While used to run the experiments multiple times
+    n_of_runs = 100
+    if n_of_runs > 1:
+        plot_chart = False
+    else:
+        plot_chart = True
 
-collected_run = []
-for run in xrange(n_of_runs):
-    print "Exploration n: " + str(run)
-    # Create Lattice
-    lattice = Lattice(feature_sets, 1)
-    max_radius = 0
+    collected_run = []
+    for run in xrange(n_of_runs):
+        print "Exploration n: " + str(run)
+        # Create Lattice
+        lattice = Lattice(feature_sets, 4)
+        max_radius = 0
 
-    # Probabilistic sample according to beta distribution
-    samples = lattice.beta_sampling(0.1, 0.1, 22)
+        # Probabilistic sample according to beta distribution
+        samples = lattice.beta_sampling(0.1, 0.1, 22)
 
-    # Populate the tree with the initial sampled values
-    # lattice.lattice.populate_tree(samples)
-    n_of_synthesis = len(samples)
+        # Populate the tree with the initial sampled values
+        # lattice.lattice.populate_tree(samples)
+        n_of_synthesis = len(samples)
 
-    # Synthesise sampled configuration
-    hls = FakeSynthesis(entire_ds, lattice)
-    # prj_description = {"prj_name": "Autocorrelation_extended",
-    #                    "test_bench_file": "gsm.c",
-                       #"test_bench_file": "tb.c",
-                       #"source_folder": "./test_folder",
-                       # "source_folder": "/home/lpozzi/shared/group_shared/benchmarks/CHStone_v1.11_150204/gsm/SRC_HLS/",
-                       # "top_function": "Autocorrelation"}
+        # Synthesise sampled configuration
+        hls = FakeSynthesis(entire_ds, lattice)
+        # prj_description = {"prj_name": "Autocorrelation_extended",
+        #                    "test_bench_file": "gsm.c",
+                           #"test_bench_file": "tb.c",
+                           #"source_folder": "./test_folder",
+                           # "source_folder": "/home/lpozzi/shared/group_shared/benchmarks/CHStone_v1.11_150204/gsm/SRC_HLS/",
+                           # "top_function": "Autocorrelation"}
 
-    # hls = VivdoHLS_Synthesis(lattice, Autocorrelation_extended.autcorrelation_extended,
-    #                          Autocorrelation_extended.autcorrelation_extended_directives_ordered,
-    #                          Autocorrelation_extended.autcorrelation_extended_bundling,
-    #                          prj_description)
+        # hls = VivdoHLS_Synthesis(lattice, Autocorrelation_extended.autcorrelation_extended,
+        #                          Autocorrelation_extended.autcorrelation_extended_directives_ordered,
+        #                          Autocorrelation_extended.autcorrelation_extended_bundling,
+        #                          prj_description)
 
-    sampled_configurations_synthesised = []
-    # for s in samples:
-    # samples = []
-    for s in samples:
-        # sample = lattice.beta_sampling(0.1, 0.1, 1).pop()
-        latency, area = hls.synthesise_configuration(s)
-        if latency is None:
-            lattice.lattice.add_config(s)
-            continue
-        # samples.append(sample)
-        synthesised_configuration = DSpoint(latency, area, s)
-        sampled_configurations_synthesised.append(synthesised_configuration)
-        # lattice.lattice.add_config(sample)
+        sampled_configurations_synthesised = []
+        # for s in samples:
+        # samples = []
+        for s in samples:
+            # sample = lattice.beta_sampling(0.1, 0.1, 1).pop()
+            latency, area = hls.synthesise_configuration(s)
+            # samples.append(sample)
+            synthesised_configuration = DSpoint(latency, area, s)
+            sampled_configurations_synthesised.append(synthesised_configuration)
+            # lattice.lattice.add_config(sample)
 
-    # print samples
-    # print len(samples)
-    # print len(sampled_configurations_synthesised)
-    # Get pareto frontier from sampled configuration
-    pareto_frontier, pareto_frontier_idx = lattice_utils.pareto_frontier2d(sampled_configurations_synthesised)
+        # print samples
+        # print len(samples)
+        # print len(sampled_configurations_synthesised)
+        # Get pareto frontier from sampled configuration
+        pareto_frontier, pareto_frontier_idx = lattice_utils.pareto_frontier2d(sampled_configurations_synthesised)
 
-    # Get exhaustive pareto frontier (known only if ground truth exists)
-    pareto_frontier_exhaustive, pareto_frontier_exhaustive_idx = lattice_utils.pareto_frontier2d(entire_ds)
+        # Get exhaustive pareto frontier (known only if ground truth exists)
+        pareto_frontier_exhaustive, pareto_frontier_exhaustive_idx = lattice_utils.pareto_frontier2d(entire_ds)
 
-    pareto_frontier_before_exploration = copy.deepcopy(pareto_frontier)
+        pareto_frontier_before_exploration = copy.deepcopy(pareto_frontier)
 
-    # PLOT start
-    if plot_chart:
-        for p in sampled_configurations_synthesised:
-            plt.scatter(p.latency, p.area, color='b')
+        # PLOT start
+        if plot_chart:
+            for p in sampled_configurations_synthesised:
+                plt.scatter(p.latency, p.area, color='b')
 
-        for pp in pareto_frontier_exhaustive:
-            plt.scatter(pp.latency, pp.area, color='r')
+            for pp in pareto_frontier_exhaustive:
+                plt.scatter(pp.latency, pp.area, color='r')
 
-        for pp in pareto_frontier:
-            plt.scatter(pp.latency, pp.area, color='g')
+            for pp in pareto_frontier:
+                plt.scatter(pp.latency, pp.area, color='g')
 
-        plt.grid()
-        # plt.draw()
-        # PLOT end
+            plt.grid()
+            # plt.draw()
+            # PLOT end
 
-    # Calculate ADRS
-    adrs_evolution = []
-    adrs = lattice_utils.adrs2d(pareto_frontier_exhaustive, pareto_frontier)
-    # adrs = lattice_utils.adrs2d(pareto_frontier_before_exploration, pareto_frontier)
-    adrs_evolution.append(adrs)
+        # Calculate ADRS
+        adrs_evolution = []
+        adrs = lattice_utils.adrs2d(pareto_frontier_exhaustive, pareto_frontier)
+        # adrs = lattice_utils.adrs2d(pareto_frontier_before_exploration, pareto_frontier)
+        adrs_evolution.append(adrs)
 
-    # Select randomly a pareto configuration and find explore his neighbour
-    r = np.random.randint(0, len(pareto_frontier))
-    pareto_configurations = [samples[i] for i in pareto_frontier_idx]
-    configuration_to_explore = pareto_configurations[r]
+        # Select randomly a pareto configuration and find explore his neighbour
+        r = np.random.randint(0, len(pareto_frontier))
+        pareto_configurations = [samples[i] for i in pareto_frontier_idx]
+        pareto_solution_to_explore = pareto_configurations[r]
 
-    # Search locally for the configuration to explore
-    sphere = st(configuration_to_explore, lattice)
-    new_configuration = sphere.random_closest_element
+        # Search locally for the configuration to explore
+        sphere = st(pareto_solution_to_explore, lattice)
+        new_configuration = sphere.random_closest_element
 
-    # Selected point distances
-    selected_point_distances = []
+        # Selected point distances
+        selected_point_distances = []
 
-    # Until there are configurations to explore, try to explore these
-    while new_configuration is not None:
-        # Synthesise configuration
-        latency, area = hls.synthesise_configuration(new_configuration)
-        if latency is None:
-            lattice.lattice.add_config(new_configuration)
+        # Until there are configurations to explore, try to explore these
+        while new_configuration is not None:
+            # Synthesise configuration
+            latency, area = hls.synthesise_configuration(new_configuration)
+            selected_point_distances.append(
+            lattice_utils.get_euclidean_distance(pareto_solution_to_explore, new_configuration))
+            # Generate a new design point
+            ds_point = DSpoint(latency, area, new_configuration)
+
+            # Update known synthesis values and configurations(only pareto + the new one)
+            pareto_frontier.append(ds_point)
+
+            # Add configuration to the tree
+            lattice.lattice.add_config(ds_point.configuration)
+
+            # Get pareto frontier
+            pareto_frontier, pareto_frontier_idx = lattice_utils.pareto_frontier2d(pareto_frontier)
+
+            # Calculate ADRS
+            adrs = lattice_utils.adrs2d(pareto_frontier_exhaustive, pareto_frontier)
+            # adrs = lattice_utils.adrs2d(pareto_frontier_before_exploration, pareto_frontier)
+            adrs_evolution.append(adrs)
+            if adrs == 0:
+                break
+
             # Find new configuration to explore
             # Select randomly a pareto configuration
             r = np.random.randint(0, len(pareto_frontier))
@@ -129,7 +148,6 @@ for run in xrange(n_of_runs):
             # Explore the closer element locally
             sphere = st(pareto_solution_to_explore, lattice)
             new_configuration = sphere.random_closest_element
-            selected_point_distances.append(lattice_utils.get_euclidean_distance(pareto_solution_to_explore, new_configuration))
             max_radius = max(max_radius, sphere.radius)
 
             if new_configuration is None:
@@ -138,83 +156,87 @@ for run in xrange(n_of_runs):
             if max_radius > lattice.max_distance:
                 print "Exploration terminated, max radius reached"
                 break
-            continue
-        # Generate a new design point
-        ds_point = DSpoint(latency, area, new_configuration)
 
-        # Update known synthesis values and configurations(only pareto + the new one)
-        pareto_frontier.append(ds_point)
+            n_of_synthesis += 1
 
-        # Add configuration to the tree
-        lattice.lattice.add_config(ds_point.configuration)
+        collected_run.append((n_of_synthesis, adrs_evolution, max_radius, selected_point_distances))
+        n_of_synthesis = 0
+        adrs_evolution = []
+        # max_radius = 0
 
-        # Get pareto frontier
-        pareto_frontier, pareto_frontier_idx = lattice_utils.pareto_frontier2d(pareto_frontier)
+        if plot_chart:
+            fig1 = plt.figure()
+            for p in sampled_configurations_synthesised:
+                plt.scatter(p.latency, p.area, color='b')
 
-        # Calculate ADRS
-        adrs = lattice_utils.adrs2d(pareto_frontier_exhaustive, pareto_frontier)
-        # adrs = lattice_utils.adrs2d(pareto_frontier_before_exploration, pareto_frontier)
-        adrs_evolution.append(adrs)
-        if adrs == 0:
-            break
+            for pp in pareto_frontier_exhaustive:
+                plt.scatter(pp.latency, pp.area, color='r', s=40)
 
-        # Find new configuration to explore
-        # Select randomly a pareto configuration
-        r = np.random.randint(0, len(pareto_frontier))
-        pareto_solution_to_explore = pareto_frontier[r].configuration
+            for pp in pareto_frontier:
+                plt.scatter(pp.latency, pp.area, color='g')
 
-        # Explore the closer element locally
-        sphere = st(pareto_solution_to_explore, lattice)
-        new_configuration = sphere.random_closest_element
-        max_radius = max(max_radius, sphere.radius)
+            fig2 = plt.figure()
+            plt.grid()
+            pareto_frontier.sort(key=lambda x: x.latency)
+            plt.step([i.latency for i in pareto_frontier], [i.area for i in pareto_frontier], where='post', color='r')
+            pareto_frontier_before_exploration.sort(key=lambda x: x.latency)
+            plt.step([i.latency for i in pareto_frontier_before_exploration], [i.area for i in pareto_frontier_before_exploration], where='post', color='b')
+            # plt.draw()
 
-        if new_configuration is None:
-            print "Exploration terminated"
-            break
-        if max_radius > lattice.max_distance:
-            print "Exploration terminated, max radius reached"
-            break
+            fig3 = plt.figure()
+            plt.grid()
+            plt.plot(adrs_evolution)
+            plt.show()
 
-        n_of_synthesis += 1
+    mean_adrs, radii, final_adrs_mean, avg_distances = lattice_utils.get_statistics(collected_run)
 
-    collected_run.append((n_of_synthesis, adrs_evolution, max_radius, selected_point_distances))
-    n_of_synthesis = 0
-    adrs_evolution = []
-    # max_radius = 0
 
-    if plot_chart:
-        fig1 = plt.figure()
-        for p in sampled_configurations_synthesised:
-            plt.scatter(p.latency, p.area, color='b')
+    data_file = open(b+"_mean_adrs.txt","w")
+    data_file.write(str(mean_adrs))
+    data_file.close()
 
-        for pp in pareto_frontier_exhaustive:
-            plt.scatter(pp.latency, pp.area, color='r', s=40)
+    data_file = open(b+"_radii.txt", "w")
+    data_file.write(str(radii))
+    data_file.close()
 
-        for pp in pareto_frontier:
-            plt.scatter(pp.latency, pp.area, color='g')
+    data_file = open(b+"_final_adrs_mean.txt", "w")
+    data_file.write(str(final_adrs_mean))
+    data_file.close()
 
-        fig2 = plt.figure()
-        plt.grid()
-        pareto_frontier.sort(key=lambda x: x.latency)
-        plt.step([i.latency for i in pareto_frontier], [i.area for i in pareto_frontier], where='post', color='r')
-        pareto_frontier_before_exploration.sort(key=lambda x: x.latency)
-        plt.step([i.latency for i in pareto_frontier_before_exploration], [i.area for i in pareto_frontier_before_exploration], where='post', color='b')
-        # plt.draw()
+    data_file = open(b+"_avg_distances.txt","w")
+    data_file.write(str(avg_distances[0]))
+    data_file.write("\n")
+    data_file.write(str(avg_distances[1]))
+    data_file.write("\n")
+    data_file.write(str(avg_distances[2]))
+    data_file.close()
 
-        fig3 = plt.figure()
-        plt.grid()
-        plt.plot(adrs_evolution)
-        plt.show()
-
-mean_adrs, radii, final_adrs_mean = lattice_utils.get_statistics(collected_run)
-
-print mean_adrs
-print final_adrs_mean
-fig4 = plt.figure()
-plt.plot(mean_adrs)
-plt.show()
-
-fig5 = plt.figure()
-plt.boxplot(radii)
-plt.grid()
-plt.show()
+    # csfont = {'family':'serif','serif':['Times'],'size': 15}
+    # matplotlib.rc('font', **csfont)
+    # print mean_adrs
+    # print final_adrs_mean
+    # fig4 = plt.figure(num=None, figsize=(7.25, 5.25), dpi=80, facecolor='w', edgecolor='k')
+    # plt.plot(mean_adrs, linewidth=2.0)
+    # plt.grid()
+    # plt.xlabel("# of synthesis")
+    # plt.ylabel("mean ADRS")
+    # plt.draw()
+    #
+    # # boxprops = dict(linewidth=2)
+    # fig6 = plt.figure(num=None, figsize=(7.25, 5.25), dpi=80, facecolor='w', edgecolor='k')
+    # # box = plt.boxplot(avg_distances)
+    # labels = ["ChenIDCt"]
+    # plt.boxplot(avg_distances, labels=labels, showfliers=False, widths=(1, 0.5, 1.2, 0.1))
+    # plt.grid()
+    # # plt.xlabel("# of synthesis", **csfont)
+    # plt.ylabel("mean distances")
+    # plt.draw()
+    #
+    # fig5 = plt.figure(num=None, figsize=(7.25, 5.25), dpi=80, facecolor='w', edgecolor='k')
+    # # box = plt.boxplot(radii)
+    # plt.boxplot(avg_distances, labels=labels, showfliers=False, widths=(1, 0.5, 1.2, 0.1))
+    # # box.set(linewidth=2)
+    # # plt.xlabel("# of synthesis", **csfont)
+    # plt.ylabel("radius")
+    # plt.grid()
+    # plt.show()

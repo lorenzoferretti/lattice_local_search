@@ -30,7 +30,7 @@ class SphereTree:
         visited_tree = Tree("visited")
         self.visit_config(self.root, visited_tree)
         while len(self.sphere_elements) == 0:
-            self.radius = self.radius + self.min_radius
+            self.radius = self.radius + self.min_radius/2
             if self.radius > self.lattice.max_distance:
                 break
             visited_tree = Tree("visited")

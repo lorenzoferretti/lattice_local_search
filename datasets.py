@@ -13,10 +13,15 @@ class Datasets:
 
     def __init__(self, name):
         self.benchmark_name = name
-        self.benchmarks_dict_type = {"ChenIDCt": "db", "adpcm_decode": "db", "adpcm_encode": "db", "reflectionCoeff": "db",
+        self.benchmarks_dict_type = {"ChenIDCt": "db", "adpcm_decode": "db", "adpcm_encode": "db",
+                                     "Reflection_coefficients": "db",
                                      "Autocorrelation": "db", "test": None}
-        self.benchmarks_dictionary_data = {"ChenIDCt": self.get_chenidct_data, "adpcm_decode": None, "adpcm_encode": None, "reflectionCoeff": None,
-                                           "Autocorrelation": None, "Autocorrelation_extended": None}
+        self.benchmarks_dictionary_data = {"ChenIDCt": self.get_chenidct_data,
+                                           "adpcm_decode": self.get_decode_data,
+                                           "adpcm_encode": self.get_encode_data,
+                                           "Reflection_coefficients": self.get_reflection_data,
+                                           "Autocorrelation": self.get_autocorr_data,
+                                           "Autocorrelation_extended": None}
 
         # Definition of autocorrelation extended_experiments
 
@@ -87,7 +92,18 @@ class Datasets:
 
         self.benchmark_directives = {"ChenIDCt": ['column_loops', 'row_loops', 'bundle_b', 'accuracy_loops'],
                                  "Autocorrelation_extended": (
-                                 self.autcorrelation_extended, self.autcorrelation_extended_directives_ordered)}
+                                 self.autcorrelation_extended, self.autcorrelation_extended_directives_ordered),
+                                     "adpcm_decode": ['main_loop_unrolling', 'mac_loop_unrolling',
+                                                      'update_loop_unrolling', 'encode_inline',
+                                                      'help_function_unrolling', 'bundle_b'],
+                                     "adpcm_encode": ['main_loop_unrolling', 'mac_loop_unrolling',
+                                                      'update_loop_unrolling', 'encode_inline',
+                                                      'help_function_unrolling', 'bundle_b'],
+                                     "Reflection_coefficients": ['loop1', 'loop2', 'loop3', 'loop4',
+                                                                 'inline_abs', 'inline_norm', 'inline_div',
+                                                                 'inline_add', 'inline_mult_r', 'bundle_b'],
+                                     "Autocorrelation": ['max_loop', 'gsm_resc_loop', 'init_loop', 'compute_loop',
+                                                         'shift_loop', 'bundle_b']}
 
         function_to_call = self.benchmarks_dictionary_data[name]
         if function_to_call is not None:
@@ -105,6 +121,60 @@ class Datasets:
             'select '+directives_str+' from '+self.benchmark_name).fetchall()
 
         # Define DS
+        config_reordered, feature_sets_orderd, directives_ordered = self._define_desing_space(configurations)
+
+        return synthesis_result, config_reordered, feature_sets_orderd, directives_ordered
+
+    def get_encode_data(self):
+        directives_str = ",".join(self.benchmark_directives[self.benchmark_name])
+        conn = sqlite3.connect('./datasets/'+self.benchmark_name+'.'+self.benchmarks_dict_type[self.benchmark_name])
+        synthesis_result = conn.execute('select latencies, ffs from '+self.benchmark_name).fetchall()
+        configurations = conn.execute(
+            'select '+directives_str+' from '+self.benchmark_name).fetchall()
+
+        # Define DS
+        config_reordered, feature_sets_orderd, directives_ordered = self._define_desing_space(configurations)
+
+        return synthesis_result, config_reordered, feature_sets_orderd, directives_ordered
+
+    def get_decode_data(self):
+        directives_str = ",".join(self.benchmark_directives[self.benchmark_name])
+        conn = sqlite3.connect('./datasets/'+self.benchmark_name+'.'+self.benchmarks_dict_type[self.benchmark_name])
+        synthesis_result = conn.execute('select latencies, ffs from '+self.benchmark_name).fetchall()
+        configurations = conn.execute(
+            'select '+directives_str+' from '+self.benchmark_name).fetchall()
+
+        # Define DS
+        config_reordered, feature_sets_orderd, directives_ordered = self._define_desing_space(configurations)
+
+        return synthesis_result, config_reordered, feature_sets_orderd, directives_ordered
+
+    def get_autocorr_data(self):
+        directives_str = ",".join(self.benchmark_directives[self.benchmark_name])
+        conn = sqlite3.connect('./datasets/'+self.benchmark_name+'.'+self.benchmarks_dict_type[self.benchmark_name])
+        synthesis_result = conn.execute('select latencies, ffs from '+self.benchmark_name).fetchall()
+        configurations = conn.execute(
+            'select '+directives_str+' from '+self.benchmark_name).fetchall()
+
+        # Define DS
+        config_reordered, feature_sets_orderd, directives_ordered = self._define_desing_space(configurations)
+
+        return synthesis_result, config_reordered, feature_sets_orderd, directives_ordered
+
+    def get_reflection_data(self):
+        directives_str = ",".join(self.benchmark_directives[self.benchmark_name])
+        conn = sqlite3.connect('./datasets/'+self.benchmark_name+'.'+self.benchmarks_dict_type[self.benchmark_name])
+        synthesis_result = conn.execute('select intervals, ffs from '+self.benchmark_name).fetchall()
+        configurations = conn.execute(
+            'select '+directives_str+' from '+self.benchmark_name).fetchall()
+
+        # Define DS
+        config_reordered, feature_sets_orderd, directives_ordered = self._define_desing_space(configurations)
+
+        return synthesis_result, config_reordered, feature_sets_orderd, directives_ordered
+
+    def _define_desing_space(self, configurations):
+
         feature_sets = []
         config_list = [list(c) for c in configurations]
         matrix = np.array(config_list)
@@ -125,37 +195,6 @@ class Datasets:
             config_reordered.append(tmp)
             tmp = []
         feature_sets_orderd = [feature_sets[i] for i in ordered_sets]
-        directives_ordered = [self.benchmark_directives["ChenIDCt"][i] for i in ordered_sets]
+        directives_ordered = [self.benchmark_directives[self.benchmark_name][i] for i in ordered_sets]
 
-        return synthesis_result, config_reordered, feature_sets_orderd, directives_ordered
-
-    def helper_bundle_function(self, partitions):
-        solutions = []
-        sol = list("x_x")
-        # sol = list("x_x")
-        # print type(partitions)
-        for p in partitions:
-            for i in range(0, len(p)):
-                for n in p[i]:
-                    if n == 1:
-                        sol[0] = str(i)
-                    if n == 2:
-                        sol[2] = str(i)
-                    # if n == 3:
-                    #        sol[4] = str(i)
-            solutions.append("".join(sol))
-            sol = list("x_x")
-        return solutions
-
-    def partition(self, collection):
-        if len(collection) == 1:
-            yield [collection]
-            return
-
-        first = collection[0]
-        for smaller in self.partition(collection[1:]):
-            # insert `first` in each of the subpartition's subsets
-            for n, subset in enumerate(smaller):
-                yield smaller[:n] + [[first] + subset] + smaller[n + 1:]
-            # put `first` in its own subset
-            yield [[first]] + smaller
+        return config_reordered, feature_sets_orderd, directives_ordered
