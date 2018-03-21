@@ -20,16 +20,16 @@ class Datasets:
 
         # Definition of autocorrelation extended_experiments
 
-        self.autcorrelation_extended_unrolling = {'max_loop': [0, 2, 4, 8, 16, 32, 40, 80],  # 8
-                                                  'gsm_mult_loop': [0, 2,  4, 8, 16, 32, 40, 80],  # 8
+        self.autcorrelation_extended_unrolling = {'max_loop': [0, 2, 4, 8, 16, 32, 40, 80, 160],  # 9
+                                                  'gsm_mult_loop': [0, 2,  4, 8, 16, 32, 40, 80, 160],  # 9
                                                   'init_zero_loop': [0, 3, 9],  # 3
-                                                  'compute_loop': [0, 2, 4, 8, 19, 38],  # 6
+                                                  'compute_loop': [0, 2, 4, 8, 19, 38, 76, 152],  # 8
                                                   'left_shift_loop': [0, 3, 9],  # 3
-                                                  'rescaling_loop': [0, 2, 4, 8, 16, 32, 40, 80]}  # 8
+                                                  'rescaling_loop': [0, 2, 4, 8, 16, 32, 40, 80, 160]}  # 9
 
         self.autcorrelation_extended_inlining = {'gsm_norm': [0, 1]}  # 2
 
-        # self.autcorrelation_extended_pipeline = {'gsm_norm': [0, 1],  # 2
+        self.autcorrelation_extended_pipeline = {'gsm_norm': [0, 1]}  # 2
         #                                          'max_loop': [0, 1],  # 2
         #                                          'gsm_mult_loop': [0, 1],  # 2
         #                                          'init_zero_loop': [0, 1],  # 2
@@ -43,16 +43,16 @@ class Datasets:
 
         self.autcorrelation_extended_bundling_config = {'bundling': [0, 1]}
 
-        self.autcorrelation_extended_partitioning = {'s': [0, 2, 4, 8]}  # 5
+        # self.autcorrelation_extended_partitioning = {'s': [0, 2, 4, 8]}  # 5
                                                         #'L_ACF': [0, 3, 9],  # 3
 
         self.autcorrelation_extended_clocks = {'clock': [5, 10, 15, 20, 25, 30, 35, 40]}  # 8
 
         self.autcorrelation_extended = {'unrolling': self.autcorrelation_extended_unrolling,
                                         'inlining': self.autcorrelation_extended_inlining,
-                                        # 'pipelining': self.autcorrelation_extended_pipeline,
+                                        'pipelining': self.autcorrelation_extended_pipeline,
                                         'bundling': self.autcorrelation_extended_bundling_config,
-                                        'partitioning': self.autcorrelation_extended_partitioning,
+                                        # 'partitioning': self.autcorrelation_extended_partitioning,
                                         'clock': self.autcorrelation_extended_clocks}
 
         self.directive_dependences = [('unrolling-max_loop', 'pipelinining-max_loop'),
@@ -68,7 +68,7 @@ class Datasets:
             ('unrolling-gsm_mult_loop', self.autcorrelation_extended['unrolling']['gsm_mult_loop']),
             ('clock-clock', self.autcorrelation_extended['clock']['clock']),
             ('unrolling-compute_loop', self.autcorrelation_extended['unrolling']['compute_loop']),
-            ('partitioning-s', self.autcorrelation_extended['partitioning']['s']),
+            # ('partitioning-s', self.autcorrelation_extended['partitioning']['s']),
             ('unrolling-init_zero_loop', self.autcorrelation_extended['unrolling']['init_zero_loop']),
             ('unrolling-left_shift_loop', self.autcorrelation_extended['unrolling']['left_shift_loop']),
             # ('pipelining-left_shift_loop', self.autcorrelation_extended['pipelining']['left_shift_loop']),

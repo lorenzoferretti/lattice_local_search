@@ -69,6 +69,7 @@ for run in xrange(n_of_runs):
         sampled_configurations_synthesised.append(synthesised_configuration)
         lattice.lattice.add_config(sample)
 
+    n_of_synthesis = len(samples)
     print samples
     print len(samples)
     print len(sampled_configurations_synthesised)
