@@ -5,7 +5,7 @@ from lattice_ds_point import DSpoint
 from lattice_sphere_tree import SphereTree as st
 import lattice_utils
 import datasets
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import copy
 import sys
@@ -23,7 +23,7 @@ radius = 2
 
 # Read dataset
 # benchmark = ["ChenIDCt", "adpcm_decode", "adpcm_encode", "Autocorrelation", "Reflection_coefficients"]
-benchmark = ["Reflection_coefficients"]
+benchmark = ["ChenIDCt"]
 for b in benchmark:
     database = datasets.Datasets(b)
     synthesis_result = database.benchmark_synthesis_results
@@ -106,17 +106,17 @@ for b in benchmark:
         pareto_frontier_before_exploration = copy.deepcopy(pareto_frontier)
 
         # PLOT start
-        if plot_chart:
-            for p in sampled_configurations_synthesised:
-                plt.scatter(p.latency, p.area, color='b')
-
-            for pp in pareto_frontier_exhaustive:
-                plt.scatter(pp.latency, pp.area, color='r')
-
-            for pp in pareto_frontier:
-                plt.scatter(pp.latency, pp.area, color='g')
-
-            plt.grid()
+        # if plot_chart:
+        #     for p in sampled_configurations_synthesised:
+        #         plt.scatter(p.latency, p.area, color='b')
+        #
+        #     for pp in pareto_frontier_exhaustive:
+        #         plt.scatter(pp.latency, pp.area, color='r')
+        #
+        #     for pp in pareto_frontier:
+        #         plt.scatter(pp.latency, pp.area, color='g')
+        #
+        #     plt.grid()
             # plt.draw()
             # PLOT end
 
@@ -205,33 +205,33 @@ for b in benchmark:
         # n_of_synthesis = 0
         # max_radius = 0
 
-        if plot_chart:
-            fig1 = plt.figure()
-            for p in sampled_configurations_synthesised:
-                plt.scatter(p.latency, p.area, color='b')
-
-            for pp in pareto_frontier_exhaustive:
-                plt.scatter(pp.latency, pp.area, color='r', s=40)
-
-            for pp in pareto_frontier:
-                plt.scatter(pp.latency, pp.area, color='g')
-
-            fig2 = plt.figure()
-            plt.grid()
-            pareto_frontier.sort(key=lambda x: x.latency)
-            plt.step([i.latency for i in pareto_frontier], [i.area for i in pareto_frontier], where='post', color='r')
-            pareto_frontier_before_exploration.sort(key=lambda x: x.latency)
-            plt.step([i.latency for i in pareto_frontier_before_exploration], [i.area for i in pareto_frontier_before_exploration], where='post', color='b')
-            # plt.draw()
-
-            fig3 = plt.figure()
-            plt.grid()
-            plt.plot(adrs_evolution)
-            plt.show()
+        # if plot_chart:
+        #     fig1 = plt.figure()
+        #     for p in sampled_configurations_synthesised:
+        #         plt.scatter(p.latency, p.area, color='b')
+        #
+        #     for pp in pareto_frontier_exhaustive:
+        #         plt.scatter(pp.latency, pp.area, color='r', s=40)
+        #
+        #     for pp in pareto_frontier:
+        #         plt.scatter(pp.latency, pp.area, color='g')
+        #
+        #     fig2 = plt.figure()
+        #     plt.grid()
+        #     pareto_frontier.sort(key=lambda x: x.latency)
+        #     plt.step([i.latency for i in pareto_frontier], [i.area for i in pareto_frontier], where='post', color='r')
+        #     pareto_frontier_before_exploration.sort(key=lambda x: x.latency)
+        #     plt.step([i.latency for i in pareto_frontier_before_exploration], [i.area for i in pareto_frontier_before_exploration], where='post', color='b')
+        #     # plt.draw()
+        #
+        #     fig3 = plt.figure()
+        #     plt.grid()
+        #     plt.plot(adrs_evolution)
+        #     plt.show()
 
     mean_adrs, radii, final_adrs_mean, avg_distances = lattice_utils.get_statistics(collected_run)
-    plt.plot(mean_adrs)
-    plt.show()
+    # plt.plot(mean_adrs)
+    # plt.show()
 
     data_file = open(b+str(radius)+"_mean_adrs.txt","w")
     data_file.write(str(mean_adrs))
