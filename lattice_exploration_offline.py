@@ -9,12 +9,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 import sys
+import math
 
 
 sys.setrecursionlimit(15200)
+radius = math.sqrt(6)
 # Read dataset
 # benchmark = ["ChenIDCt", "adpcm_decode", "adpcm_encode", "Autocorrelation", "Reflection_coefficients"]
-benchmark = ["Autocorrelation"]
+benchmark = ["adpcm_decode"]
 for b in benchmark:
     database = datasets.Datasets(b)
     synthesis_result = database.benchmark_synthesis_results
@@ -39,11 +41,11 @@ for b in benchmark:
     for run in xrange(n_of_runs):
         print "Exploration n: " + str(run)
         # Create Lattice
-        lattice = Lattice(feature_sets, 4)
+        lattice = Lattice(feature_sets, radius)
         max_radius = 0
 
         # Probabilistic sample according to beta distribution
-        samples = lattice.beta_sampling(0.1, 0.1, 22)
+        samples = lattice.beta_sampling(0.1, 0.1, 64)
 
         # Populate the tree with the initial sampled values
         # lattice.lattice.populate_tree(samples)
@@ -104,6 +106,7 @@ for b in benchmark:
         adrs_evolution = []
         adrs = lattice_utils.adrs2d(pareto_frontier_exhaustive, pareto_frontier)
         # adrs = lattice_utils.adrs2d(pareto_frontier_before_exploration, pareto_frontier)
+        # ADRS after initial sampling
         adrs_evolution.append(adrs)
 
         # Select randomly a pareto configuration and find explore his neighbour
@@ -145,15 +148,26 @@ for b in benchmark:
 
             # Find new configuration to explore
             # Select randomly a pareto configuration
-            r = np.random.randint(0, len(pareto_frontier))
-            pareto_solution_to_explore = pareto_frontier[r].configuration
+            search_among_pareto = copy.copy(pareto_frontier)
+            while len(search_among_pareto) > 0:
+                r = np.random.randint(0, len(search_among_pareto))
+                pareto_solution_to_explore = search_among_pareto[r].configuration
 
-            # Explore the closer element locally
-            sphere = st(pareto_solution_to_explore, lattice)
-            new_configuration = sphere.random_closest_element
-            max_radius = max(max_radius, sphere.radius)
+                # Explore the closer element locally
+                sphere = st(pareto_solution_to_explore, lattice)
+                new_configuration = sphere.random_closest_element
+                if new_configuration is None:
+                    search_among_pareto.pop(r)
+                    continue
 
-            if new_configuration is None:
+                max_radius = max(max_radius, sphere.radius)
+                if max_radius > lattice.max_distance:
+                    search_among_pareto.pop(r)
+                    continue
+
+                break
+
+            if len(search_among_pareto) == 0:
                 print "Exploration terminated"
                 break
             if max_radius > lattice.max_distance:
@@ -163,8 +177,9 @@ for b in benchmark:
             n_of_synthesis += 1
 
         collected_run.append((n_of_synthesis, adrs_evolution, max_radius, selected_point_distances))
-        n_of_synthesis = 0
-        adrs_evolution = []
+        print(max_radius)
+        print n_of_synthesis
+        # n_of_synthesis = 0
         # max_radius = 0
 
         if plot_chart:
@@ -192,21 +207,22 @@ for b in benchmark:
             plt.show()
 
     mean_adrs, radii, final_adrs_mean, avg_distances = lattice_utils.get_statistics(collected_run)
+    plt.plot(mean_adrs)
+    plt.show()
 
-
-    data_file = open(b+"_mean_adrs.txt","w")
+    data_file = open(b+str(radius)+"_mean_adrs.txt","w")
     data_file.write(str(mean_adrs))
     data_file.close()
 
-    data_file = open(b+"_radii.txt", "w")
+    data_file = open(b+str(radius)+"_radii.txt", "w")
     data_file.write(str(radii))
     data_file.close()
 
-    data_file = open(b+"_final_adrs_mean.txt", "w")
+    data_file = open(b+str(radius)+"_final_adrs_mean.txt", "w")
     data_file.write(str(final_adrs_mean))
     data_file.close()
 
-    data_file = open(b+"_avg_distances.txt","w")
+    data_file = open(b+str(radius)+"_avg_distances.txt","w")
     data_file.write(str(avg_distances[0]))
     data_file.write("\n")
     data_file.write(str(avg_distances[1]))
