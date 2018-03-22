@@ -6,7 +6,7 @@
 # given an input configuration. Fake synthesiser retrieve data from the exhaustive exploration already performed
 ########################################################################################################################
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, exists
 import subprocess
 import xml.etree.ElementTree
 
@@ -44,8 +44,12 @@ class VivdoHLS_Synthesis:
         if script_name is None:
             return None, None
         # process = subprocess.Popen(["vivado_hls", "-f", "./exploration_scripts/" + script_name + ".txt", ">>", script_name + ".out"])
-        process = subprocess.Popen("vivado_hls -f ./exploration_scripts/" + script_name + ".txt >> ./exploration_scripts/" + script_name + ".out", shell=True)
-        process.wait()
+        if exists("./"+self.project_name+"/"+script_name+"/syn/report/"+self.top_function+"_csynth.xml"):
+            print "File already synthesised and already in folder!"
+            pass
+        else:
+            process = subprocess.Popen("vivado_hls -f ./exploration_scripts/" + script_name + ".txt >> ./exploration_scripts/" + script_name + ".out", shell=True)
+            process.wait()
         latency, area = self.get_synthesis_results(script_name)
         return latency, area
 

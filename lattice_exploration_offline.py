@@ -15,15 +15,16 @@ import pickle
 
 sys.setrecursionlimit(15200)
 
-# radius = 0.415771953155/2
-# radius = 0.415771953155
-# radius = 0.826965179554
-radius = 2
+radius = 0.26
+# radius = 0.551266201949/1.5
+# radius = 0.551266201949
+# radius = 1.03648446166
+# radius = 2
 
 
 # Read dataset
 # benchmark = ["ChenIDCt", "adpcm_decode", "adpcm_encode", "Autocorrelation", "Reflection_coefficients"]
-benchmark = ["ChenIDCt"]
+benchmark = ["adpcm_decode"]
 for b in benchmark:
     database = datasets.Datasets(b)
     synthesis_result = database.benchmark_synthesis_results
