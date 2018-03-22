@@ -23,7 +23,7 @@ radius = 2
 
 # Read dataset
 # benchmark = ["ChenIDCt", "adpcm_decode", "adpcm_encode", "Autocorrelation", "Reflection_coefficients"]
-benchmark = ["ChenIDCt"]
+benchmark = ["Reflection_coefficients"]
 for b in benchmark:
     database = datasets.Datasets(b)
     synthesis_result = database.benchmark_synthesis_results
@@ -55,9 +55,9 @@ for b in benchmark:
         # samples_dataset = []
         # for i in xrange(100):
         #     # Probabilistic sample according to beta distribution
-        #     samples_dataset.append(lattice.beta_sampling(0.1, 0.1, 22))
-        #     with open(b + '.pickle', 'wb') as handle:
-        #         pickle.dump(samples_dataset, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        #     samples_dataset.append(lattice.beta_sampling(0.1, 0.1, 460))
+        # with open(b + '.pickle', 'wb') as handle:
+        #     pickle.dump(samples_dataset, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         #To read from already generated samples
         with open(b+'.pickle', 'rb') as handle:
