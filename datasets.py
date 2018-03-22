@@ -115,7 +115,7 @@ class Datasets:
 
     def get_chenidct_data(self):
         directives_str = ",".join(self.benchmark_directives[self.benchmark_name])
-        conn = sqlite3.connect('./datasets/'+self.benchmark_name+'.'+self.benchmarks_dict_type[self.benchmark_name])
+        conn = sqlite3.connect('./datasets/ChenIDct.'+self.benchmarks_dict_type[self.benchmark_name])
         synthesis_result = conn.execute('select latencies, ffs from '+self.benchmark_name).fetchall()
         configurations = conn.execute(
             'select '+directives_str+' from '+self.benchmark_name).fetchall()
