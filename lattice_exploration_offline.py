@@ -10,13 +10,20 @@ import numpy as np
 import copy
 import sys
 import math
+import pickle
 
 
 sys.setrecursionlimit(15200)
-radius = math.sqrt(6)
+
+# radius = 0.415771953155/2
+# radius = 0.415771953155
+# radius = 0.826965179554
+radius = 2
+
+
 # Read dataset
 # benchmark = ["ChenIDCt", "adpcm_decode", "adpcm_encode", "Autocorrelation", "Reflection_coefficients"]
-benchmark = ["adpcm_decode"]
+benchmark = ["ChenIDCt"]
 for b in benchmark:
     database = datasets.Datasets(b)
     synthesis_result = database.benchmark_synthesis_results
@@ -40,12 +47,23 @@ for b in benchmark:
     collected_run = []
     for run in xrange(n_of_runs):
         print "Exploration n: " + str(run)
+        max_radius = 0
         # Create Lattice
         lattice = Lattice(feature_sets, radius)
-        max_radius = 0
 
-        # Probabilistic sample according to beta distribution
-        samples = lattice.beta_sampling(0.1, 0.1, 64)
+        # To create inital samples
+        # samples_dataset = []
+        # for i in xrange(100):
+        #     # Probabilistic sample according to beta distribution
+        #     samples_dataset.append(lattice.beta_sampling(0.1, 0.1, 22))
+        #     with open(b + '.pickle', 'wb') as handle:
+        #         pickle.dump(samples_dataset, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        #To read from already generated samples
+        with open(b+'.pickle', 'rb') as handle:
+            samples = pickle.load(handle)
+
+        samples = samples[run]
 
         # Populate the tree with the initial sampled values
         # lattice.lattice.populate_tree(samples)
@@ -55,10 +73,10 @@ for b in benchmark:
         hls = FakeSynthesis(entire_ds, lattice)
         # prj_description = {"prj_name": "Autocorrelation_extended",
         #                    "test_bench_file": "gsm.c",
-                           #"test_bench_file": "tb.c",
-                           #"source_folder": "./test_folder",
-                           # "source_folder": "/home/lpozzi/shared/group_shared/benchmarks/CHStone_v1.11_150204/gsm/SRC_HLS/",
-                           # "top_function": "Autocorrelation"}
+        #"test_bench_file": "tb.c",
+        #"source_folder": "./test_folder",
+        # "source_folder": "/home/lpozzi/shared/group_shared/benchmarks/CHStone_v1.11_150204/gsm/SRC_HLS/",
+        # "top_function": "Autocorrelation"}
 
         # hls = VivdoHLS_Synthesis(lattice, Autocorrelation_extended.autcorrelation_extended,
         #                          Autocorrelation_extended.autcorrelation_extended_directives_ordered,
@@ -126,7 +144,7 @@ for b in benchmark:
             # Synthesise configuration
             latency, area = hls.synthesise_configuration(new_configuration)
             selected_point_distances.append(
-            lattice_utils.get_euclidean_distance(pareto_solution_to_explore, new_configuration))
+                lattice_utils.get_euclidean_distance(pareto_solution_to_explore, new_configuration))
             # Generate a new design point
             ds_point = DSpoint(latency, area, new_configuration)
 
@@ -143,8 +161,8 @@ for b in benchmark:
             adrs = lattice_utils.adrs2d(pareto_frontier_exhaustive, pareto_frontier)
             # adrs = lattice_utils.adrs2d(pareto_frontier_before_exploration, pareto_frontier)
             adrs_evolution.append(adrs)
-            if adrs == 0:
-                break
+            # if adrs == 0:
+            #     break
 
             # Find new configuration to explore
             # Select randomly a pareto configuration
@@ -167,11 +185,16 @@ for b in benchmark:
 
                 break
 
+            exit_expl = False
             if len(search_among_pareto) == 0:
                 print "Exploration terminated"
-                break
+                exit_expl = True
+
             if max_radius > lattice.max_distance:
                 print "Exploration terminated, max radius reached"
+                exit_expl = True
+
+            if exit_expl:
                 break
 
             n_of_synthesis += 1
@@ -258,4 +281,13 @@ for b in benchmark:
     # # plt.xlabel("# of synthesis", **csfont)
     # plt.ylabel("radius")
     # plt.grid()
+    # plt.grid(
     # plt.show()
+
+# prova = ((2, [1, 2], 1, [1, 2]),
+#        (3, [1, 2, 3], 1, [1, 2]),
+#        (5, [1, 2, 3, 4, 5], 3, [1, 2]),
+#        (7, [1, 2, 3, 4, 5, 6, 7], 4, [1, 2]))
+#
+# mean_adrs, radii, final_adrs_mean, avg_distances = lattice_utils.get_statistics(prova)
+# print mean_adrs

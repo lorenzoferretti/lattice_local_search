@@ -6,3 +6,4 @@ lattice_synthesis.pyc
 *.ps
 venv/
 test.py
+*.txt

@@ -157,24 +157,39 @@ for run in xrange(n_of_runs):
         # adrs = lattice_utils.adrs2d(pareto_frontier_exhaustive, pareto_frontier)
         adrs = lattice_utils.adrs2d(pareto_frontier_before_exploration, pareto_frontier)
         adrs_evolution.append(adrs)
-        if adrs == 0:
-            break
+    #    if adrs == 0:
+    #         break
 
         # Find new configuration to explore
-        # Select randomly a pareto configuration
-        r = np.random.randint(0, len(pareto_frontier))
-        pareto_solution_to_explore = pareto_frontier[r].configuration
+        search_among_pareto = copy.copy(pareto_frontier)
+        while len(search_among_pareto) > 0:
+            r = np.random.randint(0, len(search_among_pareto))
+            pareto_solution_to_explore = search_among_pareto[r].configuration
 
-        # Explore the closer element locally
-        sphere = st(pareto_solution_to_explore, lattice)
-        new_configuration = sphere.random_closest_element
-        max_radius = max(max_radius, sphere.radius)
+            # Explore the closer element locally
+            sphere = st(pareto_solution_to_explore, lattice)
+            new_configuration = sphere.random_closest_element
+            if new_configuration is None:
+                search_among_pareto.pop(r)
+                continue
 
-        if new_configuration is None:
-            print "Exploration terminated"
+            max_radius = max(max_radius, sphere.radius)
+            if max_radius > lattice.max_distance:
+                search_among_pareto.pop(r)
+                continue
+
             break
+
+        exit_expl = False
+        if len(search_among_pareto) == 0:
+            print "Exploration terminated"
+            exit_expl = True
+
         if max_radius > lattice.max_distance:
             print "Exploration terminated, max radius reached"
+            exit_expl = True
+
+        if exit_expl:
             break
 
         n_of_synthesis += 1
