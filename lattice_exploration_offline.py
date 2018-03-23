@@ -11,6 +11,8 @@ import copy
 import sys
 import math
 import pickle
+import scipy.io
+import timeit
 
 
 sys.setrecursionlimit(15200)
@@ -23,7 +25,7 @@ radius = 0.5
 
 # Read dataset
 # benchmark = ["ChenIDCt", "adpcm_decode", "adpcm_encode", "Autocorrelation", "Reflection_coefficients"]
-benchmark = ["adpcm_decode"]
+benchmark = ["ChenIDCt"]
 for b in benchmark:
     database = datasets.Datasets(b)
     synthesis_result = database.benchmark_synthesis_results
@@ -59,11 +61,32 @@ for b in benchmark:
         # with open(b + '.pickle', 'wb') as handle:
         #     pickle.dump(samples_dataset, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        #To read from already generated samples
-        with open(b+'.pickle', 'rb') as handle:
-            samples = pickle.load(handle)
+        # To read from already generated samples
+        # with open(b+'.pickle', 'rb') as handle:
+        #     samples = pickle.load(handle)
+        #
+        # samples = samples[run]
+        # For comparison with other benchmark
+        if b == "adpcm_decode":
+            mat = scipy.io.loadmat('/Users/lorenzo/Documents/phd_src/geneticAlgorithms/dataSampled_500sample_10percent_adpcmDecode.mat')
+        elif b == "adpcm_encode":
+            mat = scipy.io.loadmat(
+                '/Users/lorenzo/Documents/phd_src/geneticAlgorithms/dataSampled_500sample_10percent_adpcmEncode.mat')
+        elif b == "Autocorrelation":
+            mat = scipy.io.loadmat(
+                '/Users/lorenzo/Documents/phd_src/geneticAlgorithms/dataSampled_500sample_10percent_Autocorrelation.mat')
+        elif b == "Reflection_coefficients":
+            mat = scipy.io.loadmat(
+                '/Users/lorenzo/Documents/phd_src/geneticAlgorithms/dataSampled_500sample_10percent_reflectionCoeff.mat')
+        elif b == "ChenIDCt":
+            mat = scipy.io.loadmat(
+                '/Users/lorenzo/Documents/phd_src/geneticAlgorithms/dataSampled_500sample_10percent_ChenIDCt.mat')
 
-        samples = samples[run]
+        samplesDataset = mat['sampleDataset']
+        # print samplesDataset[0][1]
+        samples = samplesDataset[0][run]
+        samples = samples.tolist()
+        samples = lattice.beta_sampling_from_probability(samples)
 
         # Populate the tree with the initial sampled values
         # lattice.lattice.populate_tree(samples)
@@ -83,16 +106,18 @@ for b in benchmark:
         #                          Autocorrelation_extended.autcorrelation_extended_bundling,
         #                          prj_description)
 
+        start = timeit.default_timer()
         sampled_configurations_synthesised = []
         # for s in samples:
         # samples = []
         for s in samples:
             # sample = lattice.beta_sampling(0.1, 0.1, 1).pop()
+            # print s
             latency, area = hls.synthesise_configuration(s)
             # samples.append(sample)
             synthesised_configuration = DSpoint(latency, area, s)
             sampled_configurations_synthesised.append(synthesised_configuration)
-            # lattice.lattice.add_config(sample)
+            lattice.lattice.add_config(s)
 
         # print samples
         # print len(samples)
@@ -187,11 +212,11 @@ for b in benchmark:
 
             exit_expl = False
             if len(search_among_pareto) == 0:
-                print "Exploration terminated"
+                # print "Exploration terminated"
                 exit_expl = True
 
             if max_radius > lattice.max_distance:
-                print "Exploration terminated, max radius reached"
+                # print "Exploration terminated, max radius reached"
                 exit_expl = True
 
             if exit_expl:
@@ -199,9 +224,10 @@ for b in benchmark:
 
             n_of_synthesis += 1
 
-        collected_run.append((n_of_synthesis, adrs_evolution, max_radius, selected_point_distances))
-        print(max_radius)
-        print n_of_synthesis
+        stop = timeit.default_timer()
+        collected_run.append((n_of_synthesis, adrs_evolution, max_radius, selected_point_distances, stop - start))
+        # print(max_radius)
+        # print n_of_synthesis
         # n_of_synthesis = 0
         # max_radius = 0
 
@@ -229,7 +255,7 @@ for b in benchmark:
         #     plt.plot(adrs_evolution)
         #     plt.show()
 
-    mean_adrs, radii, final_adrs_mean, avg_distances = lattice_utils.get_statistics(collected_run)
+    mean_adrs, radii, final_adrs_mean, avg_distances, avg_time = lattice_utils.get_statistics(collected_run)
     # plt.plot(mean_adrs)
     # plt.show()
 
@@ -251,6 +277,10 @@ for b in benchmark:
     data_file.write(str(avg_distances[1]))
     data_file.write("\n")
     data_file.write(str(avg_distances[2]))
+    data_file.close()
+
+    data_file = open(b + str(radius) + "_avg_time.txt", "w")
+    data_file.write(str(avg_time))
     data_file.close()
 
     # csfont = {'family':'serif','serif':['Times'],'size': 15}

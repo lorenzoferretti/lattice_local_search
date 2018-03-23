@@ -67,6 +67,29 @@ class Lattice:
                     break
         return samples
 
+    def beta_sampling_from_probability(self, sampled_probability):
+        samples = []
+        for sp in sampled_probability:
+            sp.pop(-2)
+            s = []
+            search = True
+            while search:
+                for d in xrange(len(self.discretized_descriptor)):
+                    d_set = self.discretized_descriptor[d]
+                    r = sp[d]
+                    d_set_array = numpy.array(d_set)
+                    idx = (numpy.abs(d_set_array - r)).argmin()
+                    s.append(d_set[idx])
+
+                # if s in samples:
+                #     s = []
+                #     continue
+                # else:
+                samples.append(s)
+                break
+        return samples
+
+
     def _find_nearest(self, array, value):
         idx = (numpy.abs(array-value)).argmin()
         return array[idx]

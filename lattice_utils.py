@@ -99,6 +99,7 @@ def get_statistics(collected_data):
     avg_distances = []
     min_distances = []
     max_distances = []
+    avg_time = []
     for i in collected_data:
         # print i[1]
         adrs.append(i[1])
@@ -107,6 +108,7 @@ def get_statistics(collected_data):
         min_distances.append(min(i[3]))
         avg_distances.append(avg(i[3]))
         max_distances.append(max(i[3]))
+        avg_time.append(i[4])
     print adrs
     last_element = []
     for i in adrs:
@@ -130,8 +132,9 @@ def get_statistics(collected_data):
     averages = map(_mean, zip(*list_avg))
     final_adrs_mean = avg(final_adrs)
     averages_distances = (avg(min_distances), avg(avg_distances), avg(max_distances))
+    average_time = avg(avg_time)
     # averages = [np.ma.average(ma.masked_values(temp_list, None)) for temp_list in izip_longest(*adrs)]
-    return averages, radii, final_adrs_mean, averages_distances
+    return averages, radii, final_adrs_mean, averages_distances, average_time
 
 
 def _mean(l):
