@@ -19,6 +19,7 @@ class SphereTree:
         self.lattice = lattice
         self.radius = lattice.discretized_descriptor[0][1]
         self.min_radius = lattice.discretized_descriptor[0][1]
+        self.min_increment = 0.05
         self.sphere_elements = []
         self.closest_distances, self.closest_elements_idx = self.get_closest_sphere_elements()
         if len(self.closest_distances) == 0:
@@ -30,7 +31,7 @@ class SphereTree:
         visited_tree = Tree("visited")
         self.visit_config(self.root, visited_tree)
         while len(self.sphere_elements) == 0:
-            self.radius = self.radius + self.min_radius/2
+            self.radius = self.radius + self.min_increment
             if self.radius > self.lattice.max_distance:
                 break
             visited_tree = Tree("visited")

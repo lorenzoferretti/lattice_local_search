@@ -15,11 +15,10 @@ import pickle
 
 sys.setrecursionlimit(15200)
 
-radius = 0.26
 # radius = 0.551266201949/1.5
 # radius = 0.551266201949
 # radius = 1.03648446166
-# radius = 2
+radius = 0.5
 
 
 # Read dataset

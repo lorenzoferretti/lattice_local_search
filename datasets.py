@@ -21,9 +21,40 @@ class Datasets:
                                            "adpcm_encode": self.get_encode_data,
                                            "Reflection_coefficients": self.get_reflection_data,
                                            "Autocorrelation": self.get_autocorr_data,
-                                           "Autocorrelation_extended": None}
+                                           "Autocorrelation_extended": None,
+                                           "adpcm_decode_ck": None}
 
-        # Definition of autocorrelation extended_experiments
+        # Definition of adpcm_decode_ck extended_experiments
+        self.adpcm_decode_ck_unrolling = {'mac_loop': [0, 2, 5],
+                                          'update_loop': [0, 2, 5],
+                                          'main_loop': [0, 5, 10, 25]}
+
+        self.adpcm_decode_ck_bundling = [("compressed", "result"), ((0, 0), (0, 1))]  # 2
+        self.adpcm_decode_ck_bundling_config = {'bundling': [0, 1]}
+
+        self.adpcm_decode_ck_inlining = {'upzero': [0, 1],
+                                                 'quantl': [0, 1]}  # 2
+
+        self.adpcm_decode_ck_clocks = {'clock': [5, 10, 15]}  # 3
+
+        self.adpcm_decode_ck = {'unrolling': self.adpcm_decode_ck_unrolling,
+                                        'inlining': self.adpcm_decode_ck_inlining,
+                                        # 'pipelining': self.autcorrelation_extended_pipeline,
+                                        'bundling': self.adpcm_decode_ck_bundling_config,
+                                        # 'partitioning': self.autcorrelation_extended_partitioning,
+                                        'clock': self.adpcm_decode_ck_clocks}
+
+        self.autcorrelation_extended_directives_ordered = [
+            ('unrolling-main_loop', self.adpcm_decode_ck['unrolling']['main_loop']),
+            ('unrolling-update_loop', self.adpcm_decode_ck['unrolling']['update_loop']),
+            ('unrolling-mac_loop', self.adpcm_decode_ck['unrolling']['mac_loop']),
+            ('clock-clock', self.adpcm_decode_ck['clock']['clock']),
+            ('inlining-upzero', self.adpcm_decode_ck['inlining']['upzero']),
+            ('inlining-quantl', self.adpcm_decode_ck['inlining']['quantl']),
+            ('bundling-sets', self.adpcm_decode_ck['bundling']['bundling']),
+        ]
+
+        # Definition of autocorrelation_extended_experiments
 
         self.autcorrelation_extended_unrolling = {'max_loop': [0, 2, 4, 8, 16, 32, 40, 80, 160],  # 9
                                                   'gsm_mult_loop': [0, 2,  4, 8, 16, 32, 40, 80, 160],  # 9
