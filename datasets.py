@@ -25,17 +25,17 @@ class Datasets:
                                            "adpcm_decode_ck": None}
 
         # Definition of adpcm_decode_ck extended_experiments
-        self.adpcm_decode_ck_unrolling = {'mac_loop': [0, 2, 5],
-                                          'update_loop': [0, 2, 5],
-                                          'main_loop': [0, 5, 10, 25]}
+        self.adpcm_decode_ck_unrolling = {'mac_loop': [0, 2, 5, 10],  # 4
+                                          'update_loop': [0, 2, 5, 10],  # 4
+                                          'main_loop': [0, 5, 10, 25, 50]}  # 5
 
         self.adpcm_decode_ck_bundling = [("compressed", "result"), ((0, 0), (0, 1))]  # 2
         self.adpcm_decode_ck_bundling_config = {'bundling': [0, 1]}
 
-        self.adpcm_decode_ck_inlining = {'upzero': [0, 1],
-                                                 'quantl': [0, 1]}  # 2
+        self.adpcm_decode_ck_inlining = {'upzero': [0, 1], # 2
+                                         'quantl': [0, 1]}  # 2
 
-        self.adpcm_decode_ck_clocks = {'clock': [5, 10, 15]}  # 3
+        self.adpcm_decode_ck_clocks = {'clock': [5, 10, 15, 20]}  # 4
 
         self.adpcm_decode_ck = {'unrolling': self.adpcm_decode_ck_unrolling,
                                         'inlining': self.adpcm_decode_ck_inlining,
