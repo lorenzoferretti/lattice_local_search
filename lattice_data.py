@@ -70,7 +70,8 @@ class Lattice:
     def beta_sampling_from_probability(self, sampled_probability):
         samples = []
         for sp in sampled_probability:
-            sp.pop(-2)
+            sp.pop(0)
+            sp.pop(0)
             s = []
             search = True
             while search:
@@ -80,6 +81,10 @@ class Lattice:
                     d_set_array = numpy.array(d_set)
                     idx = (numpy.abs(d_set_array - r)).argmin()
                     s.append(d_set[idx])
+
+                # if s in samples:
+                #     s = []
+                #     continue
 
                 # if s in samples:
                 #     s = []

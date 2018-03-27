@@ -44,7 +44,7 @@ class Datasets:
                                         # 'partitioning': self.autcorrelation_extended_partitioning,
                                         'clock': self.adpcm_decode_ck_clocks}
 
-        self.autcorrelation_extended_directives_ordered = [
+        self.adpcm_decode_ck_directives_ordered = [
             ('unrolling-main_loop', self.adpcm_decode_ck['unrolling']['main_loop']),
             ('unrolling-update_loop', self.adpcm_decode_ck['unrolling']['update_loop']),
             ('unrolling-mac_loop', self.adpcm_decode_ck['unrolling']['mac_loop']),

@@ -105,9 +105,14 @@ def get_statistics(collected_data):
         adrs.append(i[1])
         radii.append(i[2])
         final_adrs.append(i[1][-1])
-        min_distances.append(min(i[3]))
-        avg_distances.append(avg(i[3]))
-        max_distances.append(max(i[3]))
+        if len(i[3]) != 0:
+            min_distances.append(min(i[3]))
+            avg_distances.append(avg(i[3]))
+            max_distances.append(max(i[3]))
+        else:
+            min_distances.append(0)
+            avg_distances.append(0)
+            max_distances.append(0)
         avg_time.append(i[4])
     print adrs
     last_element = []

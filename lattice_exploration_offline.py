@@ -20,12 +20,12 @@ sys.setrecursionlimit(15200)
 # radius = 0.551266201949/1.5
 # radius = 0.551266201949
 # radius = 1.03648446166
-radius = 0.5
+radius = 1
 
 
 # Read dataset
 # benchmark = ["ChenIDCt", "adpcm_decode", "adpcm_encode", "Autocorrelation", "Reflection_coefficients"]
-benchmark = ["ChenIDCt"]
+benchmark = ["Autocorrelation"]
 for b in benchmark:
     database = datasets.Datasets(b)
     synthesis_result = database.benchmark_synthesis_results
@@ -52,6 +52,7 @@ for b in benchmark:
         max_radius = 0
         # Create Lattice
         lattice = Lattice(feature_sets, radius)
+        # samples = lattice.beta_sampling(0.1, 0.1, 22)
 
         # To create inital samples
         # samples_dataset = []
@@ -67,20 +68,21 @@ for b in benchmark:
         #
         # samples = samples[run]
         # For comparison with other benchmark
+
         if b == "adpcm_decode":
-            mat = scipy.io.loadmat('/Users/lorenzo/Documents/phd_src/geneticAlgorithms/dataSampled_500sample_10percent_adpcmDecode.mat')
+            mat = scipy.io.loadmat('./ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_adpcmDecode.mat')
         elif b == "adpcm_encode":
             mat = scipy.io.loadmat(
-                '/Users/lorenzo/Documents/phd_src/geneticAlgorithms/dataSampled_500sample_10percent_adpcmEncode.mat')
+                './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_adpcmEncode.mat')
         elif b == "Autocorrelation":
             mat = scipy.io.loadmat(
-                '/Users/lorenzo/Documents/phd_src/geneticAlgorithms/dataSampled_500sample_10percent_Autocorrelation.mat')
+                './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_Autocorrelation.mat')
         elif b == "Reflection_coefficients":
             mat = scipy.io.loadmat(
-                '/Users/lorenzo/Documents/phd_src/geneticAlgorithms/dataSampled_500sample_10percent_reflectionCoeff.mat')
+                './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_reflectionCoeff.mat')
         elif b == "ChenIDCt":
             mat = scipy.io.loadmat(
-                '/Users/lorenzo/Documents/phd_src/geneticAlgorithms/dataSampled_500sample_10percent_ChenIDCt.mat')
+                './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_ChenIDCt.mat')
 
         samplesDataset = mat['sampleDataset']
         # print samplesDataset[0][1]
@@ -151,6 +153,7 @@ for b in benchmark:
         # adrs = lattice_utils.adrs2d(pareto_frontier_before_exploration, pareto_frontier)
         # ADRS after initial sampling
         adrs_evolution.append(adrs)
+
 
         # Select randomly a pareto configuration and find explore his neighbour
         r = np.random.randint(0, len(pareto_frontier))
@@ -259,19 +262,19 @@ for b in benchmark:
     # plt.plot(mean_adrs)
     # plt.show()
 
-    data_file = open(b+str(radius)+"_mean_adrs.txt","w")
+    data_file = open(b+str(radius)+"_mean_adrs2.txt","w")
     data_file.write(str(mean_adrs))
     data_file.close()
 
-    data_file = open(b+str(radius)+"_radii.txt", "w")
+    data_file = open(b+str(radius)+"_radii2.txt", "w")
     data_file.write(str(radii))
     data_file.close()
 
-    data_file = open(b+str(radius)+"_final_adrs_mean.txt", "w")
+    data_file = open(b+str(radius)+"_final_adrs_mean2.txt", "w")
     data_file.write(str(final_adrs_mean))
     data_file.close()
 
-    data_file = open(b+str(radius)+"_avg_distances.txt","w")
+    data_file = open(b+str(radius)+"_avg_distances2.txt","w")
     data_file.write(str(avg_distances[0]))
     data_file.write("\n")
     data_file.write(str(avg_distances[1]))
@@ -279,7 +282,7 @@ for b in benchmark:
     data_file.write(str(avg_distances[2]))
     data_file.close()
 
-    data_file = open(b + str(radius) + "_avg_time.txt", "w")
+    data_file = open(b + str(radius) + "_avg_time2.txt", "w")
     data_file.write(str(avg_time))
     data_file.close()
 
