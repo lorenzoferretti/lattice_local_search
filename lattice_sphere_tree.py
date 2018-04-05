@@ -21,7 +21,7 @@ class SphereTree:
         self.min_radius = lattice.discretized_descriptor[0][1]
         self.min_increment = 0.05
         self.sphere_elements = []
-        self.closest_distances, self.closest_elements_idx = self.get_closest_sphere_elements()
+        self.closest_distances, self.closest_elements_idx, self.n_of_children = self.get_closest_sphere_elements()
         if len(self.closest_distances) == 0:
             self.random_closest_element = None
         else:
@@ -36,7 +36,10 @@ class SphereTree:
                 break
             visited_tree = Tree("visited")
             self.visit_config(self.root, visited_tree)
-        return self.sort_sphere_elements()
+            # print "Number of children: ", visited_tree.get_n_of_children()
+            # print "Sphere elements: ", len(self.sphere_elements)
+        closest_distances, closest_elements_idx = self.sort_sphere_elements()
+        return closest_distances, closest_elements_idx, visited_tree.get_n_of_children()
 
     def visit_config(self, starting_config, visited_tree):
         children = []

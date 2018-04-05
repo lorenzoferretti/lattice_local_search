@@ -13,6 +13,7 @@ import math
 import pickle
 import scipy.io
 import timeit
+import os
 
 
 sys.setrecursionlimit(15200)
@@ -20,9 +21,9 @@ sys.setrecursionlimit(15200)
 # radius = 0.551266201949/1.5
 # radius = 0.551266201949
 # radius = 1.03648446166
-radius = 1
+radius = 0.5
 
-
+first = True
 # Read dataset
 # benchmark = ["ChenIDCt", "adpcm_decode", "adpcm_encode", "Autocorrelation", "Reflection_coefficients"]
 benchmark = ["Autocorrelation"]
@@ -31,6 +32,7 @@ for b in benchmark:
     synthesis_result = database.benchmark_synthesis_results
     configurations = database.benchmark_configurations
     feature_sets = database.benchmark_feature_sets
+    directives = database.benchmark_directives
 
     entire_ds = []
     for i in xrange(len(synthesis_result)):
@@ -47,8 +49,11 @@ for b in benchmark:
         plot_chart = True
 
     collected_run = []
+    adrs_history = []
+    # sphere_elements_sizes = []
     for run in xrange(n_of_runs):
         print "Exploration n: " + str(run)
+        sphere_elements_sizes = []
         max_radius = 0
         # Create Lattice
         lattice = Lattice(feature_sets, radius)
@@ -63,33 +68,41 @@ for b in benchmark:
         #     pickle.dump(samples_dataset, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         # To read from already generated samples
-        # with open(b+'.pickle', 'rb') as handle:
-        #     samples = pickle.load(handle)
-        #
-        # samples = samples[run]
+        with open(b+'.pickle', 'rb') as handle:
+            samples = pickle.load(handle)
+
+        samples = samples[run]
         # For comparison with other benchmark
 
-        if b == "adpcm_decode":
-            mat = scipy.io.loadmat('./ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_adpcmDecode.mat')
-        elif b == "adpcm_encode":
-            mat = scipy.io.loadmat(
-                './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_adpcmEncode.mat')
-        elif b == "Autocorrelation":
-            mat = scipy.io.loadmat(
-                './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_Autocorrelation.mat')
-        elif b == "Reflection_coefficients":
-            mat = scipy.io.loadmat(
-                './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_reflectionCoeff.mat')
-        elif b == "ChenIDCt":
-            mat = scipy.io.loadmat(
-                './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_ChenIDCt.mat')
+        # if b == "adpcm_decode":
+        #     mat = scipy.io.loadmat('./ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_adpcmDecode.mat')
+        # elif b == "adpcm_encode":
+        #     mat = scipy.io.loadmat(
+        #         './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_adpcmEncode.mat')
+        # elif b == "Autocorrelation":
+        #     mat = scipy.io.loadmat(
+        #         './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_Autocorrelation.mat')
+        # elif b == "Reflection_coefficients":
+        #     mat = scipy.io.loadmat(
+        #         './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_reflectionCoeff.mat')
+        # elif b == "ChenIDCt":
+        #     mat = scipy.io.loadmat(
+        #         './ClusterBasedDSE_Datasets/dataSampled_500sample_10percent_ChenIDCt.mat')
+        #
+        # samplesDataset = mat['sampleDataset']
+        # # print samplesDataset[0][1]
+        # samplesTmp = samplesDataset[0][run]
+        # samples_list = []
+        # for s in samplesTmp:
+        #     s_list = s.tolist()
+        #     tmp = [s_list[2], s_list[3], s_list[5], s_list[4], s_list[6], s_list[7]]
+        #     samples_list.append(tmp)
+        # # samples1 = samplesDataset[0]
+        # # samples = samples.tolist()
+        # # samples = lattice.beta_sampling_from_probability(samples_list)
+        # samples = samples_list
 
-        samplesDataset = mat['sampleDataset']
-        # print samplesDataset[0][1]
-        samples = samplesDataset[0][run]
-        samples = samples.tolist()
-        samples = lattice.beta_sampling_from_probability(samples)
-
+        # print samplesDataset[0][0]
         # Populate the tree with the initial sampled values
         # lattice.lattice.populate_tree(samples)
         n_of_synthesis = len(samples)
@@ -108,7 +121,7 @@ for b in benchmark:
         #                          Autocorrelation_extended.autcorrelation_extended_bundling,
         #                          prj_description)
 
-        start = timeit.default_timer()
+        # start = timeit.default_timer()
         sampled_configurations_synthesised = []
         # for s in samples:
         # samples = []
@@ -121,6 +134,7 @@ for b in benchmark:
             sampled_configurations_synthesised.append(synthesised_configuration)
             lattice.lattice.add_config(s)
 
+        start = timeit.default_timer()
         # print samples
         # print len(samples)
         # print len(sampled_configurations_synthesised)
@@ -153,6 +167,8 @@ for b in benchmark:
         # adrs = lattice_utils.adrs2d(pareto_frontier_before_exploration, pareto_frontier)
         # ADRS after initial sampling
         adrs_evolution.append(adrs)
+        adrs_history.append(adrs)
+        # continue
 
 
         # Select randomly a pareto configuration and find explore his neighbour
@@ -163,6 +179,7 @@ for b in benchmark:
         # Search locally for the configuration to explore
         sphere = st(pareto_solution_to_explore, lattice)
         new_configuration = sphere.random_closest_element
+        sphere_elements_sizes.append(sphere.n_of_children)
 
         # Selected point distances
         selected_point_distances = []
@@ -202,6 +219,7 @@ for b in benchmark:
                 # Explore the closer element locally
                 sphere = st(pareto_solution_to_explore, lattice)
                 new_configuration = sphere.random_closest_element
+                sphere_elements_sizes.append(sphere.n_of_children)
                 if new_configuration is None:
                     search_among_pareto.pop(r)
                     continue
@@ -228,7 +246,95 @@ for b in benchmark:
             n_of_synthesis += 1
 
         stop = timeit.default_timer()
-        collected_run.append((n_of_synthesis, adrs_evolution, max_radius, selected_point_distances, stop - start))
+
+        collected_run.append((n_of_synthesis, adrs_evolution, max_radius, selected_point_distances, stop - start, sphere_elements_sizes))
+
+        mean_adrs, radii, final_adrs_mean, avg_distances, avg_time, max_sphere, avg_sphere = lattice_utils.get_statistics(collected_run)
+        print "./"+b + str(radius) + "_mean_adrs4.txt"
+        print os.path.exists("./"+b + str(radius) + "_mean_adrs4.txt")
+        if os.path.exists("./"+b + str(radius) + "_mean_adrs4.txt") and not first:  # optional check if file exists
+            # with open(b + str(radius) + "_mean_adrs2.txt", 'a') as file:
+            print os.path.exists("./"+b + str(radius) + "_mean_adrs4.txt") and not first
+            print "File already exists"
+                # file.write("\n")  # could be any text, appended @ the end of file
+            data_file = open(b + str(radius) + "_mean_adrs4.txt", "a")
+            data_file.write(str(mean_adrs))
+            data_file.write("---" * 10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_radii4.txt", "a")
+            data_file.write(str(radii))
+            data_file.write("---" * 10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_final_adrs_mean4.txt", "a")
+            data_file.write(str(final_adrs_mean))
+            data_file.write("---" * 10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_avg_distances4.txt", "a")
+            data_file.write(str(avg_distances[0]))
+            data_file.write("\n")
+            data_file.write(str(avg_distances[1]))
+            data_file.write("\n")
+            data_file.write(str(avg_distances[2]))
+            data_file.write("---"*10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_avg_time4.txt", "a")
+            data_file.write(str(avg_time))
+            data_file.write("---" * 10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_max_sphere4.txt", "a")
+            data_file.write(str(max_sphere))
+            data_file.write("---" * 10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_avg_sphere4.txt", "a")
+            data_file.write(str(avg_sphere))
+            data_file.write("---" * 10)
+            data_file.close()
+        else:
+            first = False
+            data_file = open(b + str(radius) + "_mean_adrs4.txt", "w")
+            data_file.write(str(mean_adrs))
+            data_file.write("---" * 10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_radii4.txt", "w")
+            data_file.write(str(radii))
+            data_file.write("---" * 10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_final_adrs_mean4.txt", "w")
+            data_file.write(str(final_adrs_mean))
+            data_file.write("---" * 10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_avg_distances4.txt", "w")
+            data_file.write(str(avg_distances[0]))
+            data_file.write("\n")
+            data_file.write(str(avg_distances[1]))
+            data_file.write("\n")
+            data_file.write(str(avg_distances[2]))
+            data_file.write("---" * 10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_avg_time4.txt", "w")
+            data_file.write(str(avg_time))
+            data_file.write("---" * 10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_max_sphere4.txt", "w")
+            data_file.write(str(max_sphere))
+            data_file.write("---" * 10)
+            data_file.close()
+
+            data_file = open(b + str(radius) + "_avg_sphere4.txt", "w")
+            data_file.write(str(avg_sphere))
+            data_file.write("---" * 10)
+            data_file.close()
         # print(max_radius)
         # print n_of_synthesis
         # n_of_synthesis = 0
@@ -258,33 +364,34 @@ for b in benchmark:
         #     plt.plot(adrs_evolution)
         #     plt.show()
 
-    mean_adrs, radii, final_adrs_mean, avg_distances, avg_time = lattice_utils.get_statistics(collected_run)
+    # print adrs_history
+    # mean_adrs, radii, final_adrs_mean, avg_distances, avg_time = lattice_utils.get_statistics(collected_run)
     # plt.plot(mean_adrs)
     # plt.show()
 
-    data_file = open(b+str(radius)+"_mean_adrs2.txt","w")
-    data_file.write(str(mean_adrs))
-    data_file.close()
-
-    data_file = open(b+str(radius)+"_radii2.txt", "w")
-    data_file.write(str(radii))
-    data_file.close()
-
-    data_file = open(b+str(radius)+"_final_adrs_mean2.txt", "w")
-    data_file.write(str(final_adrs_mean))
-    data_file.close()
-
-    data_file = open(b+str(radius)+"_avg_distances2.txt","w")
-    data_file.write(str(avg_distances[0]))
-    data_file.write("\n")
-    data_file.write(str(avg_distances[1]))
-    data_file.write("\n")
-    data_file.write(str(avg_distances[2]))
-    data_file.close()
-
-    data_file = open(b + str(radius) + "_avg_time2.txt", "w")
-    data_file.write(str(avg_time))
-    data_file.close()
+    # data_file = open(b+str(radius)+"_mean_adrs2.txt","w")
+    # data_file.write(str(mean_adrs))
+    # data_file.close()
+    #
+    # data_file = open(b+str(radius)+"_radii2.txt", "w")
+    # data_file.write(str(radii))
+    # data_file.close()
+    #
+    # data_file = open(b+str(radius)+"_final_adrs_mean2.txt", "w")
+    # data_file.write(str(final_adrs_mean))
+    # data_file.close()
+    #
+    # data_file = open(b+str(radius)+"_avg_distances2.txt","w")
+    # data_file.write(str(avg_distances[0]))
+    # data_file.write("\n")
+    # data_file.write(str(avg_distances[1]))
+    # data_file.write("\n")
+    # data_file.write(str(avg_distances[2]))
+    # data_file.close()
+    #
+    # data_file = open(b + str(radius) + "_avg_time2.txt", "w")
+    # data_file.write(str(avg_time))
+    # data_file.close()
 
     # csfont = {'family':'serif','serif':['Times'],'size': 15}
     # matplotlib.rc('font', **csfont)
