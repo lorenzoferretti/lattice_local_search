@@ -7,3 +7,5 @@ lattice_synthesis.pyc
 venv/
 test.py
 *.txt
+*.zip
+Not_to_publish/
