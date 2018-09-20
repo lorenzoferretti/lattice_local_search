@@ -8,16 +8,6 @@ import datasets
 import numpy as np
 import copy
 
-# Read dataset
-# ChenIDCt = datasets.Datasets("ChenIDCt")
-# synthesis_result = ChenIDCt.benchmark_synthesis_results
-# configurations = ChenIDCt.benchmark_configurations
-# feature_sets = ChenIDCt.benchmark_feature_sets
-#
-# entire_ds = []
-# for i in xrange(len(synthesis_result)):
-#     entire_ds.append(DSpoint(synthesis_result[i][0], synthesis_result[i][1], list(configurations[i])))
-
 Autocorrelation_extended = datasets.Datasets("Autocorrelation_extended")
 feature_sets = [i[1] for i in Autocorrelation_extended.autcorrelation_extended_directives_ordered]
 
@@ -45,9 +35,7 @@ for run in xrange(n_of_runs):
     # hls = FakeSynthesis(entire_ds, lattice)
     prj_description = {"prj_name": "Autocorrelation_extended",
                        "test_bench_file": "gsm.c",
-                       #"test_bench_file": "tb.c",
-                       #"source_folder": "./test_folder",
-                       "source_folder": "/home/lpozzi/shared/group_shared/benchmarks/CHStone_v1.11_150204/gsm/SRC_HLS/",
+                       "source_folder": "<path_to_src_folder>",
                        "top_function": "Autocorrelation"}
 
     hls = VivdoHLS_Synthesis(lattice, Autocorrelation_extended.autcorrelation_extended,
@@ -186,7 +174,7 @@ for run in xrange(n_of_runs):
             exit_expl = True
 
         if max_radius > lattice.max_distance:
-            print "Exploration terminated, max radius reached"
+            print "Max radius reached"
             exit_expl = True
 
         if exit_expl:

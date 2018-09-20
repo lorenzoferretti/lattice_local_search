@@ -91,66 +91,8 @@ def _p2p_distance_2d(ref_pt, app_pt):
     d = max(to_find_max)
     return d
 
-
-def get_statistics(collected_data):
-    adrs = []
-    radii = []
-    final_adrs = []
-    avg_distances = []
-    min_distances = []
-    max_distances = []
-    avg_time = []
-    max_sphere_size = []
-    avg_sphere_size = []
-    for i in collected_data:
-        # print i[1]
-        adrs.append(i[1])
-        radii.append(i[2])
-        final_adrs.append(i[1][-1])
-        if len(i[3]) != 0:
-            min_distances.append(min(i[3]))
-            avg_distances.append(avg(i[3]))
-            max_distances.append(max(i[3]))
-        else:
-            min_distances.append(0)
-            avg_distances.append(0)
-            max_distances.append(0)
-        avg_time.append(i[4])
-        max_sphere_size.append(max(i[5]))
-        avg_sphere_size.append(avg(i[5]))
-    print adrs
-    last_element = []
-    for i in adrs:
-        last_element.append(i[-1])
-
-    max_len = 0
-
-    for i in adrs:
-        if max_len < len(i):
-            max_len = len(i)
-
-    list_avg = []
-    for i in xrange(len(collected_data)):
-        list_avg.append([None] * max_len)
-    for i in xrange(len(list_avg)):
-        for j in xrange(len(list_avg[i])):
-            if j < len(adrs[i]):
-                list_avg[i][j] = adrs[i][j]
-            else:
-                list_avg[i][j] = adrs[i][-1]
-    averages = map(_mean, zip(*list_avg))
-    final_adrs_mean = avg(final_adrs)
-    averages_distances = (avg(min_distances), avg(avg_distances), avg(max_distances))
-    average_time = avg(avg_time)
-    n_max_sphere = max(max_sphere_size)
-    n_avg_sphere = avg(avg_sphere_size)
-    # averages = [np.ma.average(ma.masked_values(temp_list, None)) for temp_list in izip_longest(*adrs)]
-    return averages, radii, final_adrs_mean, averages_distances, average_time, n_max_sphere, n_avg_sphere
-
-
 def _mean(l):
     return sum(l) / len(l)
-
 
 def avg(x):
     x = list(x)
